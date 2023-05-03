@@ -1,5 +1,6 @@
 class UnitOnBoard
 {
+    // Format linii określającej jednostkę na planszy:
     private:
         char unitAffiliation;
         char unitType;
@@ -16,5 +17,12 @@ class UnitOnBoard
             this->xCord = _xCord;
             this->yCord = _yCord;
             this->hp = _hp;
+        }
+
+        std::string printUnit()
+        {
+            std::string res = std::string() + unitAffiliation + " " + unitType + " " + std::to_string(unitId) + " " + std::to_string(xCord)
+            + " " + std::to_string(yCord) + " " + std::to_string(hp);
+            return res;
         }
 };

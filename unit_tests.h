@@ -1,13 +1,13 @@
+#include <iostream>
 #include <cassert>
+#include "FUnitOnBoard/UnitOnBoard.h"
+#include <string.h>
 
-void test_pass() {
-    assert(0 == 0);
-}
+void testUnitOnBoard() {
+    UnitOnBoard unitOnBoard('P', 'K', 1, 0, 0, 100);
+    std::string res;
+    res = unitOnBoard.printUnit();
+    assert(res.compare("P K 1 0 0 100") == 0);
 
-void test_fail() {
-    assert(1 == 0);
-}
-
-void test_fail_valgrind() {
-    int *x = new int[100];
+    delete res;
 }
