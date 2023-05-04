@@ -11,3 +11,6 @@ CXX: clang++
 
 unit_test: unit_test_driver.o 
 	$(CXX) unit_test_driver.o
+
+memoryleaktest:
+	valgrind --tool=memcheck ./main arg1 arg2 arg3

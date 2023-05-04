@@ -30,7 +30,7 @@ void prepareMapToFile(const char* mapName)
 
 void prepareStatusToFile(const char* statusName)
 {
-    int Gold = 2500;
+    long Gold = 2000;
     std::ofstream myFile(statusName);
 
     if (myFile.is_open())

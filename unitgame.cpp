@@ -14,8 +14,8 @@ void mapRead()
 
     if(boardMap == NULL)
     {
-        boardMap = new char*[4];
-        for(int i=0; i<4; i++)
+        boardMap = new char*[5];
+        for(int i=0; i<5; i++)
         {
             boardMap[i] = new char[32];
         }
@@ -43,10 +43,8 @@ void GameMenu()
 {
     for(int i=0; i<5; i++)
     {
-        std::cout << boardMap[i];
+        std::cout << boardMap[i] << std::endl;
     }
-
-    std::cout << "Tutaj";
 }
 
 void playPrepare(const char* mapName, const char* statusName, const char* orderName, int time = 5)
