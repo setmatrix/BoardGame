@@ -1,10 +1,32 @@
-#include "AUnit/AUnit.h"
 #include <string>
 
-class Swordsman: private AUnit
+class Swordsman: public AUnit
 {
-    private:
-        std::string name="Swordsman";
     public:
-        Swordsman() : AUnit(60, 2, 250, 1, 3){}
+        Swordsman() : AUnit('S', 60, 2, 250, 1, 3){}
+        
+        ~Swordsman() override {}
+        
+        char getUnitType() override
+        {
+            return unitType;
+        }
+        int getHp() override
+        {
+            return basehp;
+        }
+        int getSpeed() override
+        {
+            return speed;
+        }
+        int getCost() override {
+            return cost;
+        }
+        int getAttackRange() override{
+            return attackRange;
+        }
+        int getBuildTime() override
+        {
+            return buildTime;
+        }
 };

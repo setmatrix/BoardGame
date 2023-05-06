@@ -1,10 +1,31 @@
-#include "AUnit/AUnit.h"
 #include <string>
 
-class Archer: private AUnit
+class Archer: public AUnit
 {
-    private:
-        std::string name="Archer";
     public:
-        Archer() : AUnit(40, 2, 250, 5, 3){}
+        Archer() : AUnit('A', 40, 2, 250, 5, 3){}
+
+        ~Archer() override {}
+        char getUnitType() override
+        {
+            return unitType;
+        }
+        int getHp() override
+        {
+            return basehp;
+        }
+        int getSpeed() override
+        {
+            return speed;
+        }
+        int getCost() override {
+            return cost;
+        }
+        int getAttackRange() override{
+            return attackRange;
+        }
+        int getBuildTime() override
+        {
+            return buildTime;
+        }
 };

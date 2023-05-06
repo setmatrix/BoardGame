@@ -1,10 +1,31 @@
-#include "AUnit/AUnit.h"
 #include <string>
 
-class Worker: private AUnit
+class Worker: public AUnit
 {
-    private:
-        std::string name="Worker";
     public:
-        Worker() : AUnit(20, 2, 100, 1, 2){}
+        Worker() : AUnit('W', 20, 2, 100, 1, 2){}
+
+        ~Worker() override {}
+        char getUnitType() override
+        {
+            return unitType;
+        }
+        int getHp() override
+        {
+            return basehp;
+        }
+        int getSpeed() override
+        {
+            return speed;
+        }
+        int getCost() override {
+            return cost;
+        }
+        int getAttackRange() override{
+            return attackRange;
+        }
+        int getBuildTime() override
+        {
+            return buildTime;
+        }
 };

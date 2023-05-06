@@ -2,6 +2,10 @@
 #include <fstream>
 #include "unitgame.cpp"
 
+void gamePrepare(const char* mapName, const char* statusName, const char* orderName, int time = 5);
+void prepare(int argc, char **argv);
+void createOrderFile(const char* orderName);
+
 void prepareMapToFile(const char* mapName)
 {
 // Create and open a text file
@@ -28,25 +32,11 @@ void prepareMapToFile(const char* mapName)
     myFile.close();
 }
 
-void prepareStatusToFile(const char* statusName)
+void createOrderFile(const char* orderName)
 {
-    long Gold = 2000;
-    std::ofstream myFile(statusName);
+    std::ofstream myFile(orderName);
 
-    if (myFile.is_open())
-    {
-        myFile << Gold << std::endl;
-    }
-
-    // Close the file
     myFile.close();
-}
-
-void gamePrepare(const char* mapName, const char* statusName, const char* orderName, int time = 5)
-{
-    prepareMapToFile(mapName);
-    prepareStatusToFile(statusName);
-    playPrepare(mapName, statusName, orderName, time);
 }
 
 void prepare(int argc, char **argv)
@@ -82,4 +72,11 @@ void prepare(int argc, char **argv)
             break;
         }
     }
+}
+
+void gamePrepare(const char* mapName, const char* statusName, const char* orderName, int time)
+{
+    prepareMapToFile(mapName);
+    createOrderFile(orderName);
+    playPrepare(mapName, statusName, orderName, time);
 }

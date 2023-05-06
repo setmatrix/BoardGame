@@ -1,10 +1,30 @@
-#include "AUnit/AUnit.h"
 #include <string>
 
-class Catapult: private AUnit
+class Catapult: public AUnit
 {
-    private:
-        std::string name="Catapult";
     public:
-        Catapult() : AUnit(50, 2, 800, 7, 6){}
+        Catapult() : AUnit('C', 50, 2, 800, 7, 6){}
+        ~Catapult() override {}
+        char getUnitType() override
+        {
+            return unitType;
+        }
+        int getHp() override
+        {
+            return basehp;
+        }
+        int getSpeed() override
+        {
+            return speed;
+        }
+        int getCost() override {
+            return cost;
+        }
+        int getAttackRange() override{
+            return attackRange;
+        }
+        int getBuildTime() override
+        {
+            return buildTime;
+        }
 };

@@ -1,10 +1,31 @@
-#include "AUnit/AUnit.h"
 #include <string>
 
-class Pikeman: private AUnit
+class Pikeman: public AUnit
 {
-    private:
-        std::string name="Pikeman";
     public:
-        Pikeman() : AUnit(50, 2, 200, 2, 3){}
+        Pikeman() : AUnit('P', 50, 2, 200, 2, 3){}
+        
+        ~Pikeman() override {}
+        char getUnitType() override
+        {
+            return unitType;
+        }
+        int getHp() override
+        {
+            return basehp;
+        }
+        int getSpeed() override
+        {
+            return speed;
+        }
+        int getCost() override {
+            return cost;
+        }
+        int getAttackRange() override{
+            return attackRange;
+        }
+        int getBuildTime() override
+        {
+            return buildTime;
+        }
 };

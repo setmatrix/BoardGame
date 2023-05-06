@@ -1,10 +1,29 @@
-#include "AUnit/AUnit.h"
-#include <string>
-
-class Ram: private AUnit
+class Ram: public AUnit
 {
-    private:
-        std::string name="Ram";
     public:
-        Ram() : AUnit(90, 2, 500, 1, 4){}
+        Ram() : AUnit('R', 90, 2, 500, 1, 4){}
+        
+        ~Ram() override {}
+        char getUnitType() override
+        {
+            return unitType;
+        }
+        int getHp() override
+        {
+            return basehp;
+        }
+        int getSpeed() override
+        {
+            return speed;
+        }
+        int getCost() override {
+            return cost;
+        }
+        int getAttackRange() override{
+            return attackRange;
+        }
+        int getBuildTime() override
+        {
+            return buildTime;
+        }
 };

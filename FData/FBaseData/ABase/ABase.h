@@ -1,6 +1,6 @@
 class ABase
 {
-    private:
+    protected:
         int hp;
         int speed;
 
@@ -10,4 +10,6 @@ class ABase
             this->hp = _hp;
             this->speed = _speed;
         }
+        virtual int getHp() = 0;
+        virtual int getSpeed() = 0;
 };
