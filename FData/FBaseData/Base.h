@@ -66,4 +66,10 @@ class Base: private ABase
                 this->timeToBuild = _unit.getBuildTime();
             }
         }
+        void isNotBuilding()
+        {
+            this-> isOnBuild = false;
+            this->unitType = '0';
+            this->timeToBuild = -1;  
+        }
 };

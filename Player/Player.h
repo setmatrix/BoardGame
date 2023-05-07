@@ -35,4 +35,18 @@ class Player
         {
             return *base;
         }
+
+        void deleteUnit(UnitOnBoard _unit)
+        {
+            std::list<UnitOnBoard>::iterator it = units.begin();
+
+            while(it != units.end())
+            {
+                if(it->getUnitId() == _unit.getUnitId())
+                {
+                    it = units.erase(it);
+                    break;
+                }
+            }
+        }
 };

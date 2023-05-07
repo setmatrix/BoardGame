@@ -9,15 +9,21 @@ class UnitOnBoard
         int yCord;
         int hp;
         bool wasAttacked = false;
+        int speed;
+        int actionPoints;
+        int range;
     public:
 
-        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp)
+        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _range)
         {
             this->unitType = _unitType;
             this->unitId = _unitId;
             this->xCord = _xCord;
             this->yCord = _yCord;
             this->hp = _hp;
+            this->speed = _speed;
+            this->actionPoints = speed;
+            this->range = _range;
         }
         std::string printUnit()
         {
@@ -27,15 +33,15 @@ class UnitOnBoard
         }
         char getUnitType()
         {
-            return getUnitType();
+            return this->unitType;
         }
         int getUnitId()
         {
-            return unitId;
+            return this->unitId;
         }
         int getXCord()
         {
-            return xCord;
+            return this->xCord;
         }
         void setXCord(int _xCord)
         {
@@ -43,7 +49,7 @@ class UnitOnBoard
         }
         int getYCord()
         {
-            return yCord;
+            return this->yCord;
         }
         void setYCord(int _yCord)
         {
@@ -51,7 +57,7 @@ class UnitOnBoard
         }
         int getHp()
         {
-            return hp;
+            return this->hp;
         }
         void setHp(int _hp)
         {
@@ -64,5 +70,30 @@ class UnitOnBoard
         bool getwasAttacking()
         {
             return this->wasAttacked;
+        }
+        int getSpeed()
+        {
+            return this->speed;
+        }
+        
+        int getActionPoints()
+        {
+            return this->actionPoints;
+        }
+
+        void setActionPoints(int _actionPoints)
+        {
+            this->actionPoints = _actionPoints;
+        }
+
+        int getRange()
+        {
+            return this->range;
+        }
+
+        void resetAction()
+        {
+            this->actionPoints = speed;
+            this->wasAttacked = false;
         }
 };

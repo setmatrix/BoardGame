@@ -2,10 +2,12 @@
 #include <fstream>
 #include "unitgame.cpp"
 
-void gamePrepare(const char* mapName, const char* statusName, const char* orderName, int time = 5);
+//Predefined functions
+void gamePrepare(const char* mapName = "plansza.txt", const char* statusName = "status.txt", const char* orderName = "rozkazy.txt", int time = 5);
 void prepare(int argc, char **argv);
 void createOrderFile(const char* orderName);
 
+//Function to create to file with map
 void prepareMapToFile(const char* mapName)
 {
 // Create and open a text file
@@ -32,6 +34,7 @@ void prepareMapToFile(const char* mapName)
     myFile.close();
 }
 
+//Function to create an empty oder file
 void createOrderFile(const char* orderName)
 {
     std::ofstream myFile(orderName);
@@ -39,10 +42,29 @@ void createOrderFile(const char* orderName)
     myFile.close();
 }
 
+//Function to run preparations with arguments or not, if not writed in terminal.
 void prepare(int argc, char **argv)
 {
     switch(argc)
     {
+        case 1:
+        {
+            gamePrepare();
+            break;
+        }
+        case 2:
+        {
+            const char* mapName = argv[1];
+            gamePrepare(mapName);
+            break;
+        }
+        case 3:
+        {
+            const char* mapName = argv[1];
+            const char *statusName = argv[2];
+            gamePrepare(mapName, statusName);
+            break;
+        }
         case 4:
         {
             const char* mapName = argv[1];
@@ -62,18 +84,16 @@ void prepare(int argc, char **argv)
         }
         default:
         {
-            if (argc < 4)
+            if (argc > 5)
             {
-                std::cout << "Za mało parametrow: " << argc << std::endl;
-            } else 
-            {
-                std::cout << "Za dużo parametrow: " << argc << std::endl;
+                std::cout << "Too much parameters " << argc << std::endl;
             }
             break;
         }
     }
 }
 
+//Creates status File. orderFile and run a game
 void gamePrepare(const char* mapName, const char* statusName, const char* orderName, int time)
 {
     prepareMapToFile(mapName);

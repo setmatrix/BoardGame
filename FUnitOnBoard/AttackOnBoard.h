@@ -1,7 +1,7 @@
-class attackOnBoard
+class AttackOnBoard
 {
     public:
-        int attackOnEnemy(char yUnit, char eUnit)
+        static int AttackOnEnemy(char yUnit, char eUnit)
         {
             switch(yUnit)
             {
