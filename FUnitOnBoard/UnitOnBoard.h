@@ -4,6 +4,7 @@ class UnitOnBoard
     // Format linii określającej jednostkę na planszy:
     private:
         char unitType;
+        char playerBase;
         int unitId;
         int xCord;
         int yCord;
@@ -13,8 +14,7 @@ class UnitOnBoard
         int actionPoints;
         int range;
     public:
-
-        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _range)
+        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _range, char _playerBase)
         {
             this->unitType = _unitType;
             this->unitId = _unitId;
@@ -24,13 +24,16 @@ class UnitOnBoard
             this->speed = _speed;
             this->actionPoints = speed;
             this->range = _range;
+            this->playerBase = _playerBase;
         }
+        //Uses only on test
         std::string printUnit()
         {
             std::string res = std::string() + unitType + " " + std::to_string(unitId) + " " + std::to_string(xCord)
             + " " + std::to_string(yCord) + " " + std::to_string(hp);
             return res;
         }
+
         char getUnitType()
         {
             return this->unitType;
@@ -89,6 +92,11 @@ class UnitOnBoard
         int getRange()
         {
             return this->range;
+        }
+
+        char getPlayerBase()
+        {
+            return this->playerBase;
         }
 
         void resetAction()

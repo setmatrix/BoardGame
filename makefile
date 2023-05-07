@@ -13,4 +13,4 @@ unit_test: unit_test_driver.o
 	$(CXX) unit_test_driver.o
 
 memoryleaktest:
-	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all -s ./main arg1 arg2 arg3
+	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all -s ./main plansza.txt status.txt rozkazy.txt

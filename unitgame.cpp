@@ -8,6 +8,7 @@
 #include "Player/Player.h"
 #include "FUnitOnBoard/AttackOnBoard.h"
 
+//Includes all headers from units
 #include "FData/FUnitData/Catapult.h"
 #include "FData/FUnitData/Archer.h"
 #include "FData/FUnitData/Knight.h"
@@ -53,6 +54,7 @@ bool rangeCalculate(int range, int x1, int y1, int x2, int y2);
 int changeActionPoints(UnitOnBoard unit, int x, int y);
 bool IsEnemyUnitOnBoard(int x, int y);
 void changePlayer();
+void GetGoldFromWorkers();
 void checkBuild();
 void ReadOrderToCommand();
 Player getPlayer(short playerTurn);
@@ -130,7 +132,8 @@ void checkBuild()
                         getPlayer(playerTurn).getBase().getYCord(),
                         k->getHp(),
                         k->getSpeed(),
-                        k->getAttackRange());
+                        k->getAttackRange(),
+                        getPlayer(playerTurn).getBase().getBaseLetter());
                     getPlayer(playerTurn).addUnit(*unit);
                     delete k, unit;
                     break;
@@ -145,7 +148,8 @@ void checkBuild()
                         getPlayer(playerTurn).getBase().getYCord(),
                         s->getHp(),
                         s->getSpeed(),
-                        s->getAttackRange());
+                        s->getAttackRange(),
+                        getPlayer(playerTurn).getBase().getBaseLetter());
                     getPlayer(playerTurn).addUnit(*unit);
                     delete s, unit;
                     break;
@@ -160,7 +164,8 @@ void checkBuild()
                         getPlayer(playerTurn).getBase().getYCord(),
                         a->getHp(),
                         a->getSpeed(),
-                        a->getAttackRange());
+                        a->getAttackRange(),
+                        getPlayer(playerTurn).getBase().getBaseLetter());
                     getPlayer(playerTurn).addUnit(*unit);
                     delete a, unit;
                     break;
@@ -175,7 +180,8 @@ void checkBuild()
                         getPlayer(playerTurn).getBase().getYCord(),
                         p->getHp(),
                         p->getSpeed(),
-                        p->getAttackRange());
+                        p->getAttackRange(),
+                        getPlayer(playerTurn).getBase().getBaseLetter());
                     getPlayer(playerTurn).addUnit(*unit);
                     delete p, unit;
                     break;
@@ -190,7 +196,8 @@ void checkBuild()
                         getPlayer(playerTurn).getBase().getYCord(),
                         c->getHp(),
                         c->getSpeed(),
-                        c->getAttackRange());
+                        c->getAttackRange(),
+                        getPlayer(playerTurn).getBase().getBaseLetter());
                     getPlayer(playerTurn).addUnit(*unit);
                     delete c, unit;
                     break;
@@ -205,7 +212,8 @@ void checkBuild()
                         getPlayer(playerTurn).getBase().getYCord(),
                         r->getHp(),
                         r->getSpeed(),
-                        r->getAttackRange());
+                        r->getAttackRange(),
+                        getPlayer(playerTurn).getBase().getBaseLetter());
                     getPlayer(playerTurn).addUnit(*unit);
                     delete r, unit;
                     break;
@@ -220,7 +228,8 @@ void checkBuild()
                         getPlayer(playerTurn).getBase().getYCord(),
                         w->getHp(),
                         w->getSpeed(),
-                        w->getAttackRange());
+                        w->getAttackRange(),
+                        getPlayer(playerTurn).getBase().getBaseLetter());
                     getPlayer(playerTurn).addUnit(*unit);
                     delete w, unit;
                     break;
@@ -236,8 +245,29 @@ void checkBuild()
     }
 }
 
-//Reads command from file line by line
+//Each turn gets money from workers and add to player's wallet.
+void GetGoldFromWorkers()
+{
+    std::list<UnitOnBoard> units = getPlayer(playerTurn).getUnitList();
+    if (units.size() > 0)
+    {
+        int goldFromWorkers = 0;
+        for (std::list<UnitOnBoard>::iterator it= getPlayer(playerTurn).getUnitList().begin(); 
+            it != getPlayer(playerTurn).getUnitList().end(); ++it)
+        {
+            std::string a(boardMap[it->getXCord(), it->getYCord()]);
 
+            if (a.compare("6"))
+            {
+                goldFromWorkers += 50;
+            }
+        }
+
+        getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() + goldFromWorkers);
+    }
+}
+
+//Reads command from file line by line
 void ReadOrderToCommand()
 {
     std::string line;
@@ -265,6 +295,7 @@ void ReadOrderToCommand()
     }
 }
 
+//Get actual player
 Player getPlayer(short playerTurn)
 {
     switch(playerTurn)
@@ -312,7 +343,7 @@ void checkCommand(std::list<std::string> listwords)
                     {
                         std::string s(boardMap[(stoi(words[2]), stoi(words[3]))]);
                         //Lastly, check if Coordinates from file are pointing to road, base, or cave and are on range to unit.
-                        if ((s == "0" || s == "6") && !IsEnemyUnitOnBoard(stoi(words[2]), stoi(words[3])) 
+                        if ((s.compare("0") || s.compare("6")) && !IsEnemyUnitOnBoard(stoi(words[2]), stoi(words[3])) 
                             && rangeCalculate(it->getActionPoints(), it->getXCord(), it->getYCord(), stoi(words[2]), stoi(words[3])))
                         {
                             //Decreases action points from move and set new Coorinates to unit.
@@ -349,41 +380,70 @@ void checkCommand(std::list<std::string> listwords)
                     //Then check, if unit was Attacking
                     if (!friendly->getwasAttacking())
                     {
-                        for (std::list<UnitOnBoard>::iterator enemy= getPlayer(oppositePlayer(playerTurn)).getUnitList().begin(); 
-                        enemy != getPlayer(oppositePlayer(playerTurn)).getUnitList().end(); ++enemy)
+                        //Attack on base
+                        if((stoi(words[2]) == 0 && stoi(words[3]) == 0) || (stoi(words[2]) == 4 && stoi(words[3]) == 31))
                         {
-                            //Like on previous comentary, get enemy unit id and check, is equal to data from file
-                            if (enemy->getUnitId() == stoi(words[2]))
+                            //Check, if the base player wants to attack is enemy
+                            if(getPlayer(playerTurn).getBase().getBaseLetter() != friendly->getPlayerBase())
                             {
-                                //Check, if is on range
+                                //Check, if the base is on range
                                 if(rangeCalculate(friendly->getRange(), friendly->getXCord(), friendly->getYCord(),
-                                    enemy->getXCord(), enemy->getYCord()))
+                                    getPlayer(oppositePlayer(playerTurn)).getBase().getXCord(), 
+                                    getPlayer(oppositePlayer(playerTurn)).getBase().getYCord()))
                                 {
-                                    //Get hp from unit and attackDamage from static method 
-                                    int enemyHp = enemy->getHp();
-                                    int attackDamage = AttackOnBoard::AttackOnEnemy(friendly->getUnitType(), enemy->getUnitType());
-
-                                    //Then set hp, substracting from damage.
-                                    enemy->setHp(enemyHp - attackDamage);
-                                    friendly->setActionPoints(friendly->getActionPoints() - 1);
-
-                                    //Set flag to true
-                                    friendly->SetwasAttacking(true);
-
-                                    //If unit has 0 or less hp
-                                    if(enemy->getHp() <= 0)
-                                    {   
-                                        //Delete from list of units
-                                        getPlayer(oppositePlayer(playerTurn)).deleteUnit(*enemy);
-                                    }
+                                    int actualBaseHp = getPlayer(oppositePlayer(playerTurn)).getBase().getHp();
+                                    getPlayer(oppositePlayer(playerTurn)).getBase().setHp(
+                                        actualBaseHp - AttackOnBoard::AttackOnEnemy(friendly->getUnitType(), 'B'));
                                 }
                                 else {
-                                    std::cout << "Your enemy is out of range\n";
+                                    std::cout << "Enemy base is out of range\n";
                                 }
-                                break;
+                            }
+                            else
+                            {
+                                std::cout << "Cannot attack your own base\n";
+                            }
+                        } 
+                        else
+                        {
+                            //Attack on enemy
+                            for (std::list<UnitOnBoard>::iterator enemy= getPlayer(oppositePlayer(playerTurn)).getUnitList().begin(); 
+                            enemy != getPlayer(oppositePlayer(playerTurn)).getUnitList().end(); ++enemy)
+                            {
+                                //Like on previous comentary, get enemy unit id and check, is equal to data from file
+                                if (enemy->getUnitId() == stoi(words[2]))
+                                {
+                                    //Check, if is on range
+                                    if(rangeCalculate(friendly->getRange(), friendly->getXCord(), friendly->getYCord(),
+                                        enemy->getXCord(), enemy->getYCord()))
+                                    {
+                                        //Get hp from unit and attackDamage from static method 
+                                        int enemyHp = enemy->getHp();
+                                        int attackDamage = AttackOnBoard::AttackOnEnemy(friendly->getUnitType(), enemy->getUnitType());
+
+                                        //Then set hp, substracting from damage.
+                                        enemy->setHp(enemyHp - attackDamage);
+                                        friendly->setActionPoints(friendly->getActionPoints() - 1);
+
+                                        //Set flag to true
+                                        friendly->SetwasAttacking(true);
+
+                                        //If unit has 0 or less hp
+                                        if(enemy->getHp() <= 0)
+                                        {   
+                                            //Delete from list of units
+                                            getPlayer(oppositePlayer(playerTurn)).deleteUnit(*enemy);
+                                        }
+                                    }
+                                    else {
+                                        std::cout << "Your enemy is out of range\n";
+                                    }
+                                    break;
+                                }
                             }
                         }
-                    } else {
+                    } 
+                    else {
                         std::cout << "Your unit already attacked\n";
                         break;
                     }
@@ -610,6 +670,8 @@ void GameMenu()
 
         char orderCommand[100];
 
+        GetGoldFromWorkers();
+
         saveStatsToFile();
 
         std::cout << "Player: " << playerTurn << std::endl;
@@ -619,6 +681,7 @@ void GameMenu()
         system("read");
         ReadOrderToCommand();
 
+        checkBuild();
         if (playerTurn == 1) turn1 += 1;
         else turn2 += 1;
 

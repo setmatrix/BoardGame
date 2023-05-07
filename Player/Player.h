@@ -17,7 +17,7 @@ class Player
         Player(int _index, char _baseLetter, int _xCord, 
         int _yCord, bool _isOnBuild = false, char _unitType = 'B', int timeToBuild = -1) : Player()
         {
-            base = new Base(_index, _baseLetter, _xCord, _yCord);
+            this->base = new Base(_index, _baseLetter, _xCord, _yCord);
         }
         int getGold() {return this->gold;}
         void setGold(int _gold) {this->gold = _gold;}
@@ -25,7 +25,7 @@ class Player
 
         std::list<UnitOnBoard> getUnitList()
         {
-            return units;
+            return this->units;
         }
         void addUnit(UnitOnBoard _unit)
         {
@@ -36,6 +36,7 @@ class Player
             return *base;
         }
 
+        //Custom method to delete unit, when hp <= 0
         void deleteUnit(UnitOnBoard _unit)
         {
             std::list<UnitOnBoard>::iterator it = units.begin();

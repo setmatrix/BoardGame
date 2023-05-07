@@ -1,8 +1,9 @@
 #include <fstream>
 #include <string>
 #include <list>
-#include <UnitOnBoard.h>
+#include "../FUnitOnBoard/UnitOnBoard.h"
 
+//unused method to generate unit states
 void GenerateStatus(std::string filename, int Gold, std::list<UnitOnBoard> map)
 {
     std::ofstream myFile(filename);
@@ -15,4 +16,5 @@ void GenerateStatus(std::string filename, int Gold, std::list<UnitOnBoard> map)
             myFile << it->printUnit() << std::endl;
         }
     }
+    myFile.close();
 }

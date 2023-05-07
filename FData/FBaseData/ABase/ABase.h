@@ -1,5 +1,6 @@
 class ABase
 {
+    //Abstract class base
     protected:
         int hp;
         int speed;

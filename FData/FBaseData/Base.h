@@ -49,14 +49,22 @@ class Base: private ABase
         {
             return baseLetter;
         }
+
         int getXCord() {return xCord;}
+
         int getYCord() {return yCord;}
+
         bool getIsOnBuild() {return isOnBuild;}
+
         void setIsOnBuild(bool _onBuild) {this->isOnBuild = _onBuild;}
+
         char getUnitType() {return unitType;}
+
         int getTimeToBuild() {return timeToBuild;}
+
         void setTimeToBuild(int _timeToBuild){this->timeToBuild = _timeToBuild;}
 
+        //Method to add Unit to build and changes state for base
         void addUnitToBuild(AUnit _unit)
         {
             if (!getIsOnBuild())
@@ -66,6 +74,8 @@ class Base: private ABase
                 this->timeToBuild = _unit.getBuildTime();
             }
         }
+
+        //Resets base state
         void isNotBuilding()
         {
             this-> isOnBuild = false;

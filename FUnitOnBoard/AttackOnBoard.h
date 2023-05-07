@@ -1,3 +1,4 @@
+//Class with method, which coresponds to table of takingDamage
 class AttackOnBoard
 {
     public:
