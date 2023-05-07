@@ -28,4 +28,18 @@ class Pikeman: public AUnit
         {
             return buildTime;
         }
+        int takeDamage (char _unitType) override
+        {
+            switch(_unitType)
+            {
+                case 'K':{return 35;}
+                case 'S':{return 15;}
+                case 'A':{return 15;}
+                case 'P':{return 15;}
+                case 'C':{return 15;}
+                case 'R':{return 10;}
+                case 'W':{return 15;}
+                case 'B':{return 10;}
+            }
+        }
 };

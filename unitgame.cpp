@@ -31,6 +31,9 @@ short playerTurn = 1;
 Player *player1;
 Player *player2;
 
+int turn1 = 0;
+int turn2 = 0;
+
 void ReadOrderToCommand();
 Player getPlayer(short playerTurn);
 void checkCommand(std::list<std::string> listwords);
@@ -44,6 +47,115 @@ void changePlayer()
     if (playerTurn > 2)
     {
         playerTurn = 1;
+    }
+}
+
+void checkBuild()
+{
+    if (getPlayer(playerTurn).getBase().getIsOnBuild())
+    {
+        getPlayer(playerTurn).getBase().setTimeToBuild(getPlayer(playerTurn).getBase().getTimeToBuild() - 1);
+
+        if (getPlayer(playerTurn).getBase().getTimeToBuild() <= 0)
+        {
+            switch(getPlayer(playerTurn).getBase().getUnitType())
+            {
+                case 'K':
+                {
+                    Knight* k = new Knight();
+                    UnitOnBoard* unit = new UnitOnBoard(
+                        getPlayer(playerTurn).getBase().getUnitType(), 
+                        unitIndex, 
+                        getPlayer(playerTurn).getBase().getXCord(), 
+                        getPlayer(playerTurn).getBase().getYCord(),
+                        k->getHp());
+                    getPlayer(playerTurn).addUnit(*unit);
+                    delete k, unit;
+                    break;
+                }
+                case 'S':
+                {
+                    Swordsman* s = new Swordsman();
+                    UnitOnBoard* unit = new UnitOnBoard(
+                        getPlayer(playerTurn).getBase().getUnitType(), 
+                        unitIndex, 
+                        getPlayer(playerTurn).getBase().getXCord(), 
+                        getPlayer(playerTurn).getBase().getYCord(),
+                        s->getHp());
+                    getPlayer(playerTurn).addUnit(*unit);
+                    delete s, unit;
+                    break;
+                }                       
+                case 'A':
+                {
+                    Archer* a = new Archer();
+                    UnitOnBoard* unit = new UnitOnBoard(
+                        getPlayer(playerTurn).getBase().getUnitType(), 
+                        unitIndex, 
+                        getPlayer(playerTurn).getBase().getXCord(), 
+                        getPlayer(playerTurn).getBase().getYCord(),
+                        a->getHp());
+                    getPlayer(playerTurn).addUnit(*unit);
+                    delete a, unit;
+                    break;
+                }
+                case 'P':
+                {
+                    Pikeman* p = new Pikeman();
+                    UnitOnBoard* unit = new UnitOnBoard(
+                        getPlayer(playerTurn).getBase().getUnitType(), 
+                        unitIndex, 
+                        getPlayer(playerTurn).getBase().getXCord(), 
+                        getPlayer(playerTurn).getBase().getYCord(),
+                        p->getHp());
+                    getPlayer(playerTurn).addUnit(*unit);
+                    delete p, unit;
+                    break;
+                }
+                case 'C':
+                {
+                    Catapult* c = new Catapult();
+                    UnitOnBoard* unit = new UnitOnBoard(
+                        getPlayer(playerTurn).getBase().getUnitType(), 
+                        unitIndex, 
+                        getPlayer(playerTurn).getBase().getXCord(), 
+                        getPlayer(playerTurn).getBase().getYCord(),
+                        c->getHp());
+                    getPlayer(playerTurn).addUnit(*unit);
+                    delete c, unit;
+                    break;
+                }
+                case 'R':
+                {
+                    Ram* r = new Ram();
+                    UnitOnBoard* unit = new UnitOnBoard(
+                        getPlayer(playerTurn).getBase().getUnitType(), 
+                        unitIndex, 
+                        getPlayer(playerTurn).getBase().getXCord(), 
+                        getPlayer(playerTurn).getBase().getYCord(),
+                        r->getHp());
+                    getPlayer(playerTurn).addUnit(*unit);
+                    delete r, unit;
+                    break;
+                }
+                case 'W':
+                {
+                    Worker* w = new Worker();
+                    UnitOnBoard* unit = new UnitOnBoard(
+                        getPlayer(playerTurn).getBase().getUnitType(), 
+                        unitIndex, 
+                        getPlayer(playerTurn).getBase().getXCord(), 
+                        getPlayer(playerTurn).getBase().getYCord(),
+                        w->getHp());
+                    getPlayer(playerTurn).addUnit(*unit);
+                    delete w, unit;
+                    break;
+                }
+                default:
+                    return;
+            }
+            unitIndex += 1;
+        }
     }
 }
 
@@ -116,7 +228,7 @@ void checkCommand(std::list<std::string> listwords)
                     break;
                 }
             }
-            delete words;
+            words->clear();
             return;
         }
         if (words[1].compare("A") == 0)
@@ -131,24 +243,27 @@ void checkCommand(std::list<std::string> listwords)
             {
                 if (friendly->getUnitId() == stoi(words[0]))
                 {
-                    for (std::list<UnitOnBoard>::iterator enemy= getPlayer(playerTurn).getUnitList().begin(); 
-                    enemy != getPlayer(playerTurn).getUnitList().end(); ++enemy)
+                    if (!friendly->getwasAttacking())
                     {
-                        if (enemy->getUnitId() == stoi(words[2]))
+                        for (std::list<UnitOnBoard>::iterator enemy= getPlayer(playerTurn).getUnitList().begin(); 
+                        enemy != getPlayer(playerTurn).getUnitList().end(); ++enemy)
                         {
-                            enemy->setHp(enemy->getHp() - 30);
+                            if (enemy->getUnitId() == stoi(words[2]))
+                            {
+                                enemy->setHp(enemy->getHp() - 30);
+                                break;
+                            }
                             break;
                         }
-                        break;
                     }
                 }
             }
-            delete words;
+            words->clear();
             return;
         }
         if (words[1].compare("B") == 0)
         {
-            if (getPlayer(playerTurn).getBase().getIsOnBuild() == false)
+            if (getPlayer(playerTurn).getBase().getIndex() == stoi(words[0]) && getPlayer(playerTurn).getBase().getIsOnBuild() == false)
             {
                 char* array = new char[words[2].length() + 1];
                 strcpy(array, words[2].c_str());
@@ -156,50 +271,85 @@ void checkCommand(std::list<std::string> listwords)
                 {
                     case 'K':
                     {
-                        getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) Knight());
-                        unitIndex += 1;
+                        Knight *k = new Knight();
+                        if (getPlayer(playerTurn).getGold() >= k->getCost())
+                        {
+                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - k->getCost());
+                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *k);
+                        }
+                        delete k;
                         break;
                     }
                     case 'S':
                     {
-                        getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) Swordsman());
-                        unitIndex += 1;
+                        Swordsman *s = new Swordsman();
+                        if (getPlayer(playerTurn).getGold() >= s->getCost())
+                        {
+                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - s->getCost());
+                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *s);
+                        }
+                        delete s;
                         break;
                     }                       
                     case 'A':
                     {
-                        getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) Archer());
-                        unitIndex += 1;
+                        Archer *a = new Archer();
+                        if (getPlayer(playerTurn).getGold() >= a->getCost())
+                        {
+                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - a->getCost());
+                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *a);
+                        }
+                        delete a;
                         break;
                     }
                     case 'P':
                     {
-                        getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) Pikeman());
-                        unitIndex += 1;
+                        Pikeman *p = new Pikeman();
+                        if (getPlayer(playerTurn).getGold() >= p->getCost())
+                        {
+                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - p->getCost());
+                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *p);
+                        }
+                        delete p;
                         break;
                     }
                     case 'C':
                     {
-                        getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) Catapult());
-                        unitIndex += 1;
+                        Catapult *c = new Catapult();
+                        if (getPlayer(playerTurn).getGold() >= c->getCost())
+                        {
+                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - c->getCost());
+                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *c);
+                        }
+                        delete c;
                         break;
                     }
                     case 'R':
                     {
-                        getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) Ram());
-                        unitIndex += 1;
+                        Ram *r = new Ram();
+                        if (getPlayer(playerTurn).getGold() >= r->getCost())
+                        {
+                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - r->getCost());
+                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *r);
+                        }
+                        delete r;
                         break;
                     }
                     case 'W':
                     {
-                        getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) Worker());
-                        unitIndex += 1;
+                        Worker *w = new Worker();
+                        if (getPlayer(playerTurn).getGold() >= w->getCost())
+                        {
+                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - w->getCost());
+                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *w);
+                        }
+                        delete w;
                         break;
                     }
                 }
             }
         }
-        delete words;
+        words->clear();
         return;
     }
     std::cout << "Unknown command" << std::endl;
@@ -207,7 +357,6 @@ void checkCommand(std::list<std::string> listwords)
 
 void mapRead()
 {
-
     if(boardMap == NULL)
     {
         boardMap = new char*[5];
@@ -235,29 +384,46 @@ void mapRead()
     }
 }
 
-void GameMenu()
+void saveStatsToFile()
 {
-    system("clear");
+    auto oppositePlayer = [](int playerTurn) -> int {
+        return (playerTurn == 1 ? 2: 1);
+    };
 
-    while(player1->getTurnCount() < 1000 && player2->getTurnCount() < 1000)
+    std::ofstream myFile(statusFileName);    
+
+    Player playerStats = getPlayer(playerTurn);
+    myFile << playerStats.getGold() << "\n";
+    myFile << playerStats.getBase().getBaseLetter() << " " 
+        << "B" << " " << playerStats.getBase().getXCord()
+        << " " << playerStats.getBase().getYCord()
+        << " " << playerStats.getBase().getHp()
+        << " " << playerStats.getBase().getUnitType() << "\n";
+
+    Player enemyStats = getPlayer(oppositePlayer(playerTurn));
+
+    myFile << enemyStats.getBase().getBaseLetter() << " " 
+        << "B" << " " << enemyStats.getBase().getXCord()
+        << " " << enemyStats.getBase().getYCord()
+        << " " << enemyStats.getBase().getHp()
+        << " " << enemyStats.getBase().getUnitType() << "\n";
+
+    for (std::list<UnitOnBoard>::iterator it= getPlayer(playerTurn).getUnitList().begin(); 
+        it != getPlayer(playerTurn).getUnitList().end(); ++it)
     {
-
-        for(int i=0; i<5; i++)
-        {
-            std::cout << boardMap[i] << std::endl;
-        }
-
-        char orderCommand[100];
-
-        std::cout << "Write your command on file " << orderFileName << " and press any key on terminal to continue" << std::endl;
-        //std::cin.getline(orderCommand, 100); // use getline() function to read a string from input stream  
-        system("read");
-        ReadOrderToCommand();
-
-        getPlayer(playerTurn).setTurnCount();
-
-        changePlayer();
+        myFile << playerStats.getBase().getBaseLetter() << " "
+            << it->getUnitId() << " " << it->getXCord() << " "
+            << it->getYCord() << " " << it->getHp() << "\n";
     }
+    for (std::list<UnitOnBoard>::iterator it= getPlayer(oppositePlayer(playerTurn)).getUnitList().begin(); 
+        it != getPlayer(oppositePlayer(playerTurn)).getUnitList().end(); ++it)
+    {
+        myFile << enemyStats.getBase().getBaseLetter() << " "
+            << it->getUnitId() << " " << it->getXCord() << " "
+            << it->getYCord() << " " << it->getHp();
+    }
+    // Close the file
+    myFile.close();
 }
 
 void playPrepare(const char* mapName, const char* statusName, const char* orderName, int time)
@@ -274,4 +440,32 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
     mapRead();
 
     GameMenu();
+}
+
+void GameMenu()
+{
+
+    while(turn1 < 1000 || turn2 < 1000)
+    {
+        system("clear");
+        for(int i=0; i<5; i++)
+        {
+            std::cout << boardMap[i] << std::endl;
+        }
+
+        char orderCommand[100];
+
+        saveStatsToFile();
+
+        std::cout << "Player: " << playerTurn << std::endl;
+        std::cout << "Write your command on file " << orderFileName << " and press any key on terminal to continue" << std::endl;
+        //std::cin.getline(orderCommand, 100); // use getline() function to read a string from input stream  
+        system("read");
+        ReadOrderToCommand();
+
+        if (playerTurn == 1) turn1 += 1;
+        else turn2 += 1;
+
+        changePlayer();
+    }
 }

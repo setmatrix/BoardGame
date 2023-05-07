@@ -28,4 +28,5 @@ class AUnit
         virtual int getCost(){return cost;}
         virtual int getAttackRange(){return attackRange;}
         virtual int getBuildTime(){return buildTime;}
+        virtual int takeDamage(char unitType) = 0;
 };

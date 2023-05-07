@@ -12,4 +12,5 @@ class ABase
         }
         virtual int getHp() = 0;
         virtual int getSpeed() = 0;
+        virtual void setHp(int _hp) = 0;
 };

@@ -8,11 +8,11 @@ class Player
         int gold;
         std::list<UnitOnBoard> *units;
         Base *base;
-        int turnCount = 0;
+
     public:
-        Player(){
-        this->gold = 2000; 
-        this->turnCount = 0;
+        Player()
+        {
+            this->gold = 2000; 
         }
         Player(int _index, char _baseLetter, int _xCord, 
         int _yCord, bool _isOnBuild = false, char _unitType = 'B', int timeToBuild = -1)
@@ -29,19 +29,8 @@ class Player
         }
         void addUnit(UnitOnBoard _unit)
         {
-            units->push_back(_unit);
+            this->units->push_back(_unit);
         }
-
-        int getTurnCount()
-        {
-            return turnCount;
-        }
-
-        void setTurnCount()
-        {
-            this->turnCount += 1;
-        }
-
         Base getBase()
         {
             return *base;
