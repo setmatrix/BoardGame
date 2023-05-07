@@ -408,19 +408,25 @@ void saveStatsToFile()
         << " " << enemyStats.getBase().getHp()
         << " " << enemyStats.getBase().getUnitType() << "\n";
 
-    for (std::list<UnitOnBoard>::iterator it= getPlayer(playerTurn).getUnitList().begin(); 
-        it != getPlayer(playerTurn).getUnitList().end(); ++it)
+    if (getPlayer(playerTurn).getUnitList().size() > 0)
     {
-        myFile << playerStats.getBase().getBaseLetter() << " "
-            << it->getUnitId() << " " << it->getXCord() << " "
-            << it->getYCord() << " " << it->getHp() << "\n";
+        for (std::list<UnitOnBoard>::iterator it= getPlayer(playerTurn).getUnitList().begin(); 
+            it != getPlayer(playerTurn).getUnitList().end(); ++it)
+        {
+            myFile << playerStats.getBase().getBaseLetter() << " "
+                << it->getUnitId() << " " << it->getXCord() << " "
+                << it->getYCord() << " " << it->getHp() << "\n";
+        }
     }
-    for (std::list<UnitOnBoard>::iterator it= getPlayer(oppositePlayer(playerTurn)).getUnitList().begin(); 
-        it != getPlayer(oppositePlayer(playerTurn)).getUnitList().end(); ++it)
+    if (getPlayer(oppositePlayer(playerTurn)).getUnitList().size() > 0)
     {
-        myFile << enemyStats.getBase().getBaseLetter() << " "
-            << it->getUnitId() << " " << it->getXCord() << " "
-            << it->getYCord() << " " << it->getHp();
+        for (std::list<UnitOnBoard>::iterator it= getPlayer(oppositePlayer(playerTurn)).getUnitList().begin(); 
+            it != getPlayer(oppositePlayer(playerTurn)).getUnitList().end(); ++it)
+        {
+            myFile << enemyStats.getBase().getBaseLetter() << " "
+                << it->getUnitId() << " " << it->getXCord() << " "
+                << it->getYCord() << " " << it->getHp();
+        }
     }
     // Close the file
     myFile.close();
@@ -429,14 +435,14 @@ void saveStatsToFile()
 void playPrepare(const char* mapName, const char* statusName, const char* orderName, int time)
 {
     mapFileName = mapName;
-    statusFileName = orderName;
+    statusFileName = statusName;
     orderFileName = orderName;
     timeOut = &time;
 
     player1 = new Player(unitIndex, 'P', 0, 0);
-    unitIndex+=1;
+    unitIndex += 1;
     player2 = new Player(unitIndex, 'E', 4, 32);
-
+    unitIndex += 1;
     mapRead();
 
     GameMenu();

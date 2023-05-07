@@ -28,18 +28,4 @@ class Knight: public AUnit
         {
             return buildTime;
         }
-        int takeDamage (char _unitType) override
-        {
-            switch(_unitType)
-            {
-                case 'K':{return 35;}
-                case 'S':{return 35;}
-                case 'A':{return 35;}
-                case 'P':{return 35;}
-                case 'C':{return 35;}
-                case 'R':{return 50;}
-                case 'W':{return 35;}
-                case 'B':{return 35;}
-            }
-        }
 };

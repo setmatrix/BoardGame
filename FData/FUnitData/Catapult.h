@@ -27,19 +27,4 @@ class Catapult: public AUnit
         {
             return buildTime;
         }
-        
-        int takeDamage (char _unitType) override
-        {
-            switch(_unitType)
-            {
-                case 'K':{return 40;}
-                case 'S':{return 40;}
-                case 'A':{return 40;}
-                case 'P':{return 40;}
-                case 'C':{return 40;}
-                case 'R':{return 40;}
-                case 'W':{return 40;}
-                case 'B':{return 50;}
-            }
-        }
 };

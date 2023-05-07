@@ -26,18 +26,4 @@ class Ram: public AUnit
         {
             return buildTime;
         }
-        int takeDamage (char _unitType) override
-        {
-            switch(_unitType)
-            {
-                case 'K':{return 10;}
-                case 'S':{return 10;}
-                case 'A':{return 10;}
-                case 'P':{return 10;}
-                case 'C':{return 10;}
-                case 'R':{return 10;}
-                case 'W':{return 10;}
-                case 'B':{return 50;}
-            }
-        }
 };

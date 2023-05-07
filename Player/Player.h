@@ -6,7 +6,7 @@ class Player
 {
     private:
         int gold;
-        std::list<UnitOnBoard> *units;
+        std::list<UnitOnBoard> units;
         Base *base;
 
     public:
@@ -15,7 +15,7 @@ class Player
             this->gold = 2000; 
         }
         Player(int _index, char _baseLetter, int _xCord, 
-        int _yCord, bool _isOnBuild = false, char _unitType = 'B', int timeToBuild = -1)
+        int _yCord, bool _isOnBuild = false, char _unitType = 'B', int timeToBuild = -1) : Player()
         {
             base = new Base(_index, _baseLetter, _xCord, _yCord);
         }
@@ -25,11 +25,11 @@ class Player
 
         std::list<UnitOnBoard> getUnitList()
         {
-            return *units;
+            return units;
         }
         void addUnit(UnitOnBoard _unit)
         {
-            this->units->push_back(_unit);
+            this->units.push_back(_unit);
         }
         Base getBase()
         {
