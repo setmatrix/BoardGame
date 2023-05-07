@@ -54,6 +54,7 @@ bool rangeCalculate(int range, int x1, int y1, int x2, int y2);
 int changeActionPoints(UnitOnBoard unit, int x, int y);
 bool IsEnemyUnitOnBoard(int x, int y);
 void changePlayer();
+void ResetAttacksStateFromPlayer();
 void GetGoldFromWorkers();
 void checkBuild();
 void ReadOrderToCommand();
@@ -264,6 +265,16 @@ void GetGoldFromWorkers()
         }
 
         getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() + goldFromWorkers);
+    }
+}
+
+//Resets all action flag
+void ResetAttacksStateFromPlayer()
+{
+    for(std::list<UnitOnBoard>::iterator it = getPlayer(playerTurn).getUnitList().begin(); 
+        it != getPlayer(playerTurn).getUnitList().end(); it++)
+    {
+        it->resetAction();
     }
 }
 
@@ -682,9 +693,91 @@ void GameMenu()
         ReadOrderToCommand();
 
         checkBuild();
+        ResetAttacksStateFromPlayer();
+
         if (playerTurn == 1) turn1 += 1;
         else turn2 += 1;
 
         changePlayer();
+    }
+
+    if(player1->getBase().getHp() <= 0 || player2->getBase().getHp() <= 0)
+    {
+        if (player1->getBase().getHp() <= 0)
+        {
+            std::cout << "Player2 wins. Congratulations!\n";
+        }
+        if (player2->getBase().getHp() <= 0)
+        {
+            std::cout << "Player1 wins. Congratulations!\n";
+        }
+    }
+    if(turn1 >= 1000 || turn2 >= 1000)
+    {
+        int player1Units = player1->getUnitList().size();
+        int player2Units = player2->getUnitList().size();
+
+        if (player1Units > player2Units)
+        {
+            std::cout << "Player 1 has more units and wins. Congratulations!\n";
+        } 
+        else if (player1Units < player2Units)
+        {
+            std::cout << "Player 2 has more units and wins. Congratulations!\n";
+        } else {
+            std::cout << "Draw!\n";
+        }
+    }
+
+    std::string str; 
+    std::cout<<"Write a nameFile to print a result:\n";
+
+    getline(std::cin, str);
+    if (str.length() > 1)
+    {
+        std::ofstream myFile(statusFileName);
+
+        myFile << "Player1:" << std::endl;
+
+        myFile << "Data about base:\n";
+        myFile << player1->getBase().getIndex() << std::endl;
+        myFile << player1->getBase().getHp() << std::endl;
+
+        myFile << "\n\nData about units:\n";
+        for (std::list<UnitOnBoard>::iterator it= player1->getUnitList().begin(); 
+            it != player1->getUnitList().end(); ++it)
+        {
+            myFile << it->getUnitId() << " " << it->getUnitType() << " " << it->getHp() << " " << it->getXCord() << " " << it->getYCord() << std::endl;
+        }
+        myFile << std::endl;
+
+        myFile << "Player2:" << std::endl;
+
+        myFile << "Data about base:\n";
+        myFile << player2->getBase().getIndex() << std::endl;
+        myFile << player2->getBase().getHp() << std::endl;
+
+        myFile << "\n\nData about units:\n";
+        for (std::list<UnitOnBoard>::iterator it= player2->getUnitList().begin(); 
+            it != player2->getUnitList().end(); ++it)
+        {
+            myFile << it->getUnitId() << " " << it->getUnitType() << " " << it->getHp() << " " << it->getXCord() << " " << it->getYCord() << std::endl;
+        }
+        myFile << std::endl;
+
+        myFile.close();
+
+        //Remove all pointers and elements
+        delete mapFileName, statusFileName, orderFileName;
+
+        for(int i=0; i<5; i++)
+        {
+            delete boardMap[i];
+        }
+        delete boardMap;
+
+        delete timeOut;
+        delete player1, player2;
+        return;
     }
 }
