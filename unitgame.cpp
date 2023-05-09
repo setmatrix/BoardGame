@@ -8,14 +8,9 @@
 #include "Player/Player.h"
 #include "FUnitOnBoard/AttackOnBoard.h"
 
-//Includes all headers from units
-#include "FData/FUnitData/Catapult.h"
-#include "FData/FUnitData/Archer.h"
-#include "FData/FUnitData/Knight.h"
-#include "FData/FUnitData/Pikeman.h"
-#include "FData/FUnitData/Ram.h"
-#include "FData/FUnitData/Swordsman.h"
-#include "FData/FUnitData/Worker.h"
+#include "FGameActions/AttackAction.cpp"
+#include "FGameActions/MoveAction.cpp"
+#include "FGameActions/BuildAction.cpp"
 
 //Map file name
 const char* mapFileName;
@@ -40,8 +35,9 @@ int unitIndex = 1;
 short playerTurn = 1;
 
 //Player classes
-Player *player1;
-Player *player2;
+enum playerNames{player1, player2};
+
+Player** players;
 
 //PlayerTurns
 //Player 1
@@ -50,9 +46,6 @@ int turn1 = 0;
 int turn2 = 0;
 
 //Predefined functions
-bool rangeCalculate(int range, int x1, int y1, int x2, int y2);
-int changeActionPoints(UnitOnBoard unit, int x, int y);
-bool IsEnemyUnitOnBoard(int x, int y);
 void changePlayer();
 void ResetAttacksStateFromPlayer();
 void GetGoldFromWorkers();
@@ -64,42 +57,6 @@ void mapRead();
 void saveStatsToFile();
 void GameMenu();
 void playPrepare(const char* mapName, const char* statusName, const char* orderName, int time = 5);
-
-//Returns true, if enemy is on range
-bool rangeCalculate(int range, int x1, int y1, int x2, int y2)
-{
-    return (abs(x1 - x2) + abs(y1 - y2) <= range ? true: false);
-}
-
-//Decreases action points
-int changeActionPoints(UnitOnBoard unit, int x, int y) {
-    int availablePoints = unit.getActionPoints();
-    int usingActionPoints = abs(x - unit.getXCord()) + abs(y - unit.getYCord());
-
-    return availablePoints - usingActionPoints;
-}
-
-//If enemy is on place x and y, returns true
-bool IsEnemyUnitOnBoard(int x, int y)
-{
-
-    auto oppositePlayer = [](int playerTurn) -> int {
-        return (playerTurn == 1 ? 2: 1);
-    };
-    std::list<UnitOnBoard> units = getPlayer(oppositePlayer(playerTurn)).getUnitList();
-
-    for (std::list<UnitOnBoard>::iterator it= units.begin(); 
-            it != units.end(); ++it)
-        {
-            if (it->getXCord() == x && it->getYCord() == y)
-            {
-                units.clear();
-                return true;
-            }
-        }
-    units.clear();
-    return false;
-}
 
 //Function to change turn
 void changePlayer()
@@ -271,10 +228,13 @@ void GetGoldFromWorkers()
 //Resets all action flag
 void ResetAttacksStateFromPlayer()
 {
-    for(std::list<UnitOnBoard>::iterator it = getPlayer(playerTurn).getUnitList().begin(); 
-        it != getPlayer(playerTurn).getUnitList().end(); it++)
+    if (getPlayer(playerTurn).getUnitList().size() > 0)
     {
-        it->resetAction();
+        for(std::list<UnitOnBoard>::iterator it = getPlayer(playerTurn).getUnitList().begin(); 
+            it != getPlayer(playerTurn).getUnitList().end(); it++)
+        {
+            it->resetAction();
+        }
     }
 }
 
@@ -301,8 +261,8 @@ void ReadOrderToCommand()
 			}
             //Each line are goint to function checkCommands, where do some actions, if writed properly.
             checkCommand(listwords);
+            listwords.clear();
 		}
-        listwords.clear();
     }
 }
 
@@ -311,8 +271,8 @@ Player getPlayer(short playerTurn)
 {
     switch(playerTurn)
     {
-        case 1:{return *player1; break;}
-        case 2:{return *player2; break;}
+        case 1:{return *players[player1]; break;}
+        case 2:{return *players[player2]; break;}
     }
     return Player();
 }
@@ -321,8 +281,11 @@ Player getPlayer(short playerTurn)
 //Respectively do action saved in file ('M' - move, 'A' - attack, 'B' - build)
 void checkCommand(std::list<std::string> listwords)
 {
+    auto enemyPlayer = [](int playerTurn) -> int {
+        return (playerTurn == 1 ? 2: 1);
+    };
     //First, check if is more or less than 3 or 4 elements
-    if(listwords.size() < 3 || listwords.size() > 4)
+    if(listwords.size() < 3 && listwords.size() > 4)
     {
         std::cout << "Unknown command" << std::endl;
         return;
@@ -343,220 +306,19 @@ void checkCommand(std::list<std::string> listwords)
         //If move was detected:
         if (words[1].compare("M") == 0)
         {
-            for (std::list<UnitOnBoard>::iterator it= getPlayer(playerTurn).getUnitList().begin(); 
-                it != getPlayer(playerTurn).getUnitList().end(); ++it)
-            {
-                //Check if unit Id is equal to Id from file.
-                if (it->getUnitId() == stoi(words[0]))
-                {
-                    //Then check, if Cordinates are on board
-                    if (stoi(words[2]) > 0 && stoi(words[2]) < 32 && stoi(words[3]) > 0 && stoi(words[3]) < 5)
-                    {
-                        std::string s(boardMap[(stoi(words[2]), stoi(words[3]))]);
-                        //Lastly, check if Coordinates from file are pointing to road, base, or cave and are on range to unit.
-                        if ((s.compare("0") || s.compare("6")) && !IsEnemyUnitOnBoard(stoi(words[2]), stoi(words[3])) 
-                            && rangeCalculate(it->getActionPoints(), it->getXCord(), it->getYCord(), stoi(words[2]), stoi(words[3])))
-                        {
-                            //Decreases action points from move and set new Coorinates to unit.
-                            it->setActionPoints(changeActionPoints(*it, stoi(words[2]), stoi(words[3])));
-                            it->setXCord(stoi(words[2]));
-                            it->setYCord(stoi(words[3]));
-                        }
-                        else {
-                            std::cout << "Not enough Action Points or Enemy on this coordination exists or place is obstacle or cave\n";
-                        }
-                        break;
-                    } else {
-                        std::cout << "Your coordication are outside from board\n";
-                    }
-                }
-            }
-            words->clear();
-            return;
+            MoveAction(getPlayer(playerTurn), getPlayer(enemyPlayer(playerTurn)), words, boardMap);
         }
+
         //If attack was detected:
         if (words[1].compare("A") == 0)
-        {
-            
-            auto oppositePlayer = [](int playerTurn) -> int {
-                return (playerTurn == 1 ? 2: 1);
-            };
-            
-            for (std::list<UnitOnBoard>::iterator friendly= getPlayer(playerTurn).getUnitList().begin(); 
-                friendly != getPlayer(playerTurn).getUnitList().end(); ++friendly)
-            {
-                //First, get unit id and check, is equal to data from file
-                if (friendly->getUnitId() == stoi(words[0]))
-                {
-                    //Then check, if unit was Attacking
-                    if (!friendly->getwasAttacking())
-                    {
-                        //Attack on base
-                        if((stoi(words[2]) == 0 && stoi(words[3]) == 0) || (stoi(words[2]) == 4 && stoi(words[3]) == 31))
-                        {
-                            //Check, if the base player wants to attack is enemy
-                            if(getPlayer(playerTurn).getBase().getBaseLetter() != friendly->getPlayerBase())
-                            {
-                                //Check, if the base is on range
-                                if(rangeCalculate(friendly->getRange(), friendly->getXCord(), friendly->getYCord(),
-                                    getPlayer(oppositePlayer(playerTurn)).getBase().getXCord(), 
-                                    getPlayer(oppositePlayer(playerTurn)).getBase().getYCord()))
-                                {
-                                    int actualBaseHp = getPlayer(oppositePlayer(playerTurn)).getBase().getHp();
-                                    getPlayer(oppositePlayer(playerTurn)).getBase().setHp(
-                                        actualBaseHp - AttackOnBoard::AttackOnEnemy(friendly->getUnitType(), 'B'));
-                                }
-                                else {
-                                    std::cout << "Enemy base is out of range\n";
-                                }
-                            }
-                            else
-                            {
-                                std::cout << "Cannot attack your own base\n";
-                            }
-                        } 
-                        else
-                        {
-                            //Attack on enemy
-                            for (std::list<UnitOnBoard>::iterator enemy= getPlayer(oppositePlayer(playerTurn)).getUnitList().begin(); 
-                            enemy != getPlayer(oppositePlayer(playerTurn)).getUnitList().end(); ++enemy)
-                            {
-                                //Like on previous comentary, get enemy unit id and check, is equal to data from file
-                                if (enemy->getUnitId() == stoi(words[2]))
-                                {
-                                    //Check, if is on range
-                                    if(rangeCalculate(friendly->getRange(), friendly->getXCord(), friendly->getYCord(),
-                                        enemy->getXCord(), enemy->getYCord()))
-                                    {
-                                        //Get hp from unit and attackDamage from static method 
-                                        int enemyHp = enemy->getHp();
-                                        int attackDamage = AttackOnBoard::AttackOnEnemy(friendly->getUnitType(), enemy->getUnitType());
-
-                                        //Then set hp, substracting from damage.
-                                        enemy->setHp(enemyHp - attackDamage);
-                                        friendly->setActionPoints(friendly->getActionPoints() - 1);
-
-                                        //Set flag to true
-                                        friendly->SetwasAttacking(true);
-
-                                        //If unit has 0 or less hp
-                                        if(enemy->getHp() <= 0)
-                                        {   
-                                            //Delete from list of units
-                                            getPlayer(oppositePlayer(playerTurn)).deleteUnit(*enemy);
-                                        }
-                                    }
-                                    else {
-                                        std::cout << "Your enemy is out of range\n";
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    } 
-                    else {
-                        std::cout << "Your unit already attacked\n";
-                        break;
-                    }
-                    break;
-                }
-            }
-            words->clear();
-            return;
+        {   
+            AttackAction(getPlayer(playerTurn), getPlayer(enemyPlayer(playerTurn)), words);
         }
+
         //If build was detected
         if (words[1].compare("B") == 0)
         {
-            //First, check if id is equal to player and base isn't in building state
-            if (getPlayer(playerTurn).getBase().getIndex() == stoi(words[0]) && !getPlayer(playerTurn).getBase().getIsOnBuild())
-            {
-                char* array = new char[words[2].length() + 1];
-
-                strcpy(array, words[2].c_str());
-
-                //Create a appropriately unit from char
-                //Susbstracting gold from player by cost of unit.
-                switch(array[0])
-                {
-                    case 'K':
-                    {
-                        Knight *k = new Knight();
-                        if (getPlayer(playerTurn).getGold() >= k->getCost())
-                        {
-                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - k->getCost());
-                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *k);
-                        }
-                        delete k;
-                        break;
-                    }
-                    case 'S':
-                    {
-                        Swordsman *s = new Swordsman();
-                        if (getPlayer(playerTurn).getGold() >= s->getCost())
-                        {
-                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - s->getCost());
-                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *s);
-                        }
-                        delete s;
-                        break;
-                    }                       
-                    case 'A':
-                    {
-                        Archer *a = new Archer();
-                        if (getPlayer(playerTurn).getGold() >= a->getCost())
-                        {
-                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - a->getCost());
-                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *a);
-                        }
-                        delete a;
-                        break;
-                    }
-                    case 'P':
-                    {
-                        Pikeman *p = new Pikeman();
-                        if (getPlayer(playerTurn).getGold() >= p->getCost())
-                        {
-                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - p->getCost());
-                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *p);
-                        }
-                        delete p;
-                        break;
-                    }
-                    case 'C':
-                    {
-                        Catapult *c = new Catapult();
-                        if (getPlayer(playerTurn).getGold() >= c->getCost())
-                        {
-                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - c->getCost());
-                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *c);
-                        }
-                        delete c;
-                        break;
-                    }
-                    case 'R':
-                    {
-                        Ram *r = new Ram();
-                        if (getPlayer(playerTurn).getGold() >= r->getCost())
-                        {
-                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - r->getCost());
-                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *r);
-                        }
-                        delete r;
-                        break;
-                    }
-                    case 'W':
-                    {
-                        Worker *w = new Worker();
-                        if (getPlayer(playerTurn).getGold() >= w->getCost())
-                        {
-                            getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() - w->getCost());
-                            getPlayer(playerTurn).getBase().addUnitToBuild((AUnit) *w);
-                        }
-                        delete w;
-                        break;
-                    }
-                }
-            }
+            BuildAction(getPlayer(playerTurn), words);
         }
         words->clear();
         return;
@@ -610,7 +372,8 @@ void saveStatsToFile()
 
     //Saves data from actual player base
     myFile << playerStats.getBase().getBaseLetter() << " " 
-        << "B" << " " << playerStats.getBase().getXCord()
+        << "B" << " " << playerStats.getBase().getIndex() 
+        << " " << playerStats.getBase().getXCord()
         << " " << playerStats.getBase().getYCord()
         << " " << playerStats.getBase().getHp()
         << " " << playerStats.getBase().getUnitType() << "\n";
@@ -619,7 +382,8 @@ void saveStatsToFile()
 
     //Saves data from enemy player base
     myFile << enemyStats.getBase().getBaseLetter() << " " 
-        << "B" << " " << enemyStats.getBase().getXCord()
+        << "B" << " " << enemyStats.getBase().getIndex() 
+        << " " << enemyStats.getBase().getXCord()
         << " " << enemyStats.getBase().getYCord()
         << " " << enemyStats.getBase().getHp()
         << " " << enemyStats.getBase().getUnitType() << "\n";
@@ -653,14 +417,18 @@ void saveStatsToFile()
 //Prepares names and create player classes
 void playPrepare(const char* mapName, const char* statusName, const char* orderName, int time)
 {
+
     mapFileName = mapName;
     statusFileName = statusName;
     orderFileName = orderName;
     timeOut = &time;
 
-    player1 = new Player(unitIndex, 'P', 0, 0);
+    players = new Player*[2];
+
+    players[player1] = new Player(unitIndex, 'P', 0, 0);
     unitIndex += 1;
-    player2 = new Player(unitIndex, 'E', 4, 32);
+    players[player2] = new Player(unitIndex, 'E', 4, 32);
+
     unitIndex += 1;
     mapRead();
 
@@ -671,7 +439,7 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
 void GameMenu()
 {
 
-    while((turn1 < 1000 || turn2 < 1000) && (player1->getBase().getHp() > 0 || player2->getBase().getHp() > 0)) 
+    while((turn1 < 1000 || turn2 < 1000) || (players[player1]->getBase().getHp() > 0 && players[player2]->getBase().getHp() > 0)) 
     {
         system("clear");
         for(int i=0; i<5; i++)
@@ -689,7 +457,9 @@ void GameMenu()
         std::cout << "Write your command on file " << orderFileName << " and press any key on terminal to continue" << std::endl;
         //std::cin.getline(orderCommand, 100); // use getline() function to read a string from input stream  
 
+        //Important - crashes a game in Ubuntu/Debian
         system("read");
+
         ReadOrderToCommand();
 
         checkBuild();
@@ -701,21 +471,21 @@ void GameMenu()
         changePlayer();
     }
 
-    if(player1->getBase().getHp() <= 0 || player2->getBase().getHp() <= 0)
+    if(players[player1]->getBase().getHp() <= 0 || players[player2]->getBase().getHp() <= 0)
     {
-        if (player1->getBase().getHp() <= 0)
+        if (players[player1]->getBase().getHp() <= 0)
         {
             std::cout << "Player2 wins. Congratulations!\n";
         }
-        if (player2->getBase().getHp() <= 0)
+        if (players[player2]->getBase().getHp() <= 0)
         {
             std::cout << "Player1 wins. Congratulations!\n";
         }
     }
     if(turn1 >= 1000 || turn2 >= 1000)
     {
-        int player1Units = player1->getUnitList().size();
-        int player2Units = player2->getUnitList().size();
+        int player1Units = players[player1]->getUnitList().size();
+        int player2Units = players[player2]->getUnitList().size();
 
         if (player1Units > player2Units)
         {
@@ -740,12 +510,12 @@ void GameMenu()
         myFile << "Player1:" << std::endl;
 
         myFile << "Data about base:\n";
-        myFile << player1->getBase().getIndex() << std::endl;
-        myFile << player1->getBase().getHp() << std::endl;
+        myFile << players[player1]->getBase().getIndex() << std::endl;
+        myFile << players[player1]->getBase().getHp() << std::endl;
 
         myFile << "\n\nData about units:\n";
-        for (std::list<UnitOnBoard>::iterator it= player1->getUnitList().begin(); 
-            it != player1->getUnitList().end(); ++it)
+        for (std::list<UnitOnBoard>::iterator it= players[player1]->getUnitList().begin(); 
+            it != players[player1]->getUnitList().end(); ++it)
         {
             myFile << it->getUnitId() << " " << it->getUnitType() << " " << it->getHp() << " " << it->getXCord() << " " << it->getYCord() << std::endl;
         }
@@ -754,12 +524,12 @@ void GameMenu()
         myFile << "Player2:" << std::endl;
 
         myFile << "Data about base:\n";
-        myFile << player2->getBase().getIndex() << std::endl;
-        myFile << player2->getBase().getHp() << std::endl;
+        myFile << players[player2]->getBase().getIndex() << std::endl;
+        myFile << players[player2]->getBase().getHp() << std::endl;
 
         myFile << "\n\nData about units:\n";
-        for (std::list<UnitOnBoard>::iterator it= player2->getUnitList().begin(); 
-            it != player2->getUnitList().end(); ++it)
+        for (std::list<UnitOnBoard>::iterator it= players[player2]->getUnitList().begin(); 
+            it != players[player2]->getUnitList().end(); ++it)
         {
             myFile << it->getUnitId() << " " << it->getUnitType() << " " << it->getHp() << " " << it->getXCord() << " " << it->getYCord() << std::endl;
         }
@@ -777,7 +547,8 @@ void GameMenu()
         delete boardMap;
 
         delete timeOut;
-        delete player1, player2;
+        delete players[player1];
+        delete players[player2];
         return;
     }
 }
