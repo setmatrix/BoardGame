@@ -17,15 +17,15 @@ int changeActionPoints(UnitOnBoard unit, int x, int y) {
 void AttackBase(Player actualPlayer, Player enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit)
 {
     //Check, if the base player wants to attack is enemy
-    if(actualPlayer.getBase().getBaseLetter() != playerUnit->getPlayerBase())
+    if(actualPlayer.getBase()->getBaseLetter() != playerUnit->getPlayerBase())
     {
         //Check, if the base is on range
         if(rangeCalculate(playerUnit->getRange(), playerUnit->getXCord(), playerUnit->getYCord(),
-            enemyPlayer.getBase().getXCord(), 
-            enemyPlayer.getBase().getYCord()))
+            enemyPlayer.getBase()->getXCord(), 
+            enemyPlayer.getBase()->getYCord()))
         {
-            int actualBaseHp = enemyPlayer.getBase().getHp();
-            enemyPlayer.getBase().setHp(
+            int actualBaseHp = enemyPlayer.getBase()->getHp();
+            enemyPlayer.getBase()->setHp(
             actualBaseHp - AttackOnBoard::AttackOnEnemy(playerUnit->getUnitType(), 'B'));
         }
         else {

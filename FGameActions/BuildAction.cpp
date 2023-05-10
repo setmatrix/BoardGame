@@ -15,14 +15,14 @@ void createUnit(Player actualPlayer, AUnit *unit)
     if (actualPlayer.getGold() >= unit->getCost())
     {
         actualPlayer.setGold(actualPlayer.getGold() - unit->getCost());
-        actualPlayer.getBase().addUnitToBuild(*unit);
+        actualPlayer.getBase()->addUnitToBuild(*unit);
     }
 }
 
 void BuildAction(Player actualPlayer, std::string *words)
 {
     //First, check if id is equal to player and base isn't in building state
-    if (actualPlayer.getBase().getIndex() == stoi(words[0]) && !actualPlayer.getBase().getIsOnBuild())
+    if (actualPlayer.getBase()->getIndex() == stoi(words[0]) && !actualPlayer.getBase()->getIsOnBuild())
     {
         char* array = new char[words[2].length() + 1];
 

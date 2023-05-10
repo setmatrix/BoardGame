@@ -31,7 +31,7 @@ int* timeOut;
 int unitIndex = 1;
 
 //actual Player
-short playerTurn = 1;
+short playerTurn = 0;
 
 //Player classes
 enum playerNames{player1, player2, playerEnd};
@@ -58,14 +58,14 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
 //If a base time to build equals zero, create a class and adds to list of units from actual player and changes base data from building
 void checkBuild()
 {
-    if (getPlayer(playerTurn).getBase().getIsOnBuild())
+    if (getPlayer(playerTurn).getBase()->getIsOnBuild())
     {
         return;
     }
     
-    getPlayer(playerTurn).getBase().setTimeToBuild(getPlayer(playerTurn).getBase().getTimeToBuild() - 1);
+    getPlayer(playerTurn).getBase()->setTimeToBuild(getPlayer(playerTurn).getBase()->getTimeToBuild() - 1);
 
-    if (getPlayer(playerTurn).getBase().getTimeToBuild() > 0)
+    if (getPlayer(playerTurn).getBase()->getTimeToBuild() > 0)
     {
         return;
     }
@@ -73,19 +73,19 @@ void checkBuild()
     auto createUnit = [](AUnit unit)
     {
         UnitOnBoard* u = new UnitOnBoard(
-            getPlayer(playerTurn).getBase().getUnitType(), 
+            getPlayer(playerTurn).getBase()->getUnitType(), 
             unitIndex, 
-            getPlayer(playerTurn).getBase().getXCord(), 
-            getPlayer(playerTurn).getBase().getYCord(),
+            getPlayer(playerTurn).getBase()->getXCord(), 
+            getPlayer(playerTurn).getBase()->getYCord(),
             unit.getHp(),
             unit.getSpeed(),
             unit.getAttackRange(),
-            getPlayer(playerTurn).getBase().getBaseLetter());
+            getPlayer(playerTurn).getBase()->getBaseLetter());
 
         getPlayer(playerTurn).addUnit(*u);
         delete u;
     };
-    switch(getPlayer(playerTurn).getBase().getUnitType())
+    switch(getPlayer(playerTurn).getBase()->getUnitType())
     {
         case 'K':
         {
@@ -141,7 +141,7 @@ void checkBuild()
         }
     unitIndex += 1;
     //resets building state on base
-    getPlayer(playerTurn).getBase().isNotBuilding();
+    getPlayer(playerTurn).getBase()->isNotBuilding();
 }
 
 //Each turn gets money from workers and add to player's wallet.
@@ -209,12 +209,7 @@ void ReadOrderToCommand()
 //Get actual player
 Player getPlayer(short playerTurn)
 {
-    switch(playerTurn)
-    {
-        case 1:{return *players[player1]; break;}
-        case 2:{return *players[player2]; break;}
-    }
-    return Player();
+    return *players[playerTurn];
 }
 
 //Commands from orderFile on name defined by users
@@ -222,7 +217,7 @@ Player getPlayer(short playerTurn)
 void checkCommand(std::list<std::string> listwords)
 {
     auto enemyPlayer = [](int playerTurn) -> int {
-        return (playerTurn == 1 ? 2: 1);
+        return (playerTurn == 0 ? 1: 0);
     };
     //First, check if is more or less than 3 or 4 elements
     if(listwords.size() < 3 && listwords.size() > 4)
@@ -300,12 +295,12 @@ std::string getDataFromPlayers(Player actualPlayer, Player enemy)
 {
     auto getBaseData = [](Player player) -> std::string 
     {
-        return std::to_string(player.getBase().getBaseLetter()) + " " 
-        + "B " + std::to_string(player.getBase().getIndex()) 
-        + " " + std::to_string(player.getBase().getXCord())
-        + " " + std::to_string(player.getBase().getYCord())
-        + " " + std::to_string(player.getBase().getHp())
-        + " " + std::to_string(player.getBase().getUnitType()) +"\n";
+        return std::string() + player.getBase()->getBaseLetter() + " " 
+        + "B " + std::to_string(player.getBase()->getIndex()) 
+        + " " + std::to_string(player.getBase()->getXCord())
+        + " " + std::to_string(player.getBase()->getYCord())
+        + " " + std::to_string(player.getBase()->getHp())
+        + " " + player.getBase()->getUnitType() +"\n";
     };
 
     auto getUnitsData = [](Player player) -> std::string 
@@ -319,7 +314,7 @@ std::string getDataFromPlayers(Player actualPlayer, Player enemy)
         for (std::list<UnitOnBoard>::iterator it= player.getUnitList().begin(); 
             it != player.getUnitList().end(); ++it)
         {
-            unitsData += std::to_string(player.getBase().getBaseLetter()) + " "
+            unitsData += std::string() + player.getBase()->getBaseLetter() + " "
                 + std::to_string(it->getUnitId()) + " " + std::to_string(it->getXCord()) + " "
                 + std::to_string(it->getYCord()) + " " + std::to_string(it->getHp()) + "\n";
         }
@@ -329,7 +324,7 @@ std::string getDataFromPlayers(Player actualPlayer, Player enemy)
     std::string returnData = "";
 
     //Saves gold from actual player
-    returnData += actualPlayer.getGold() + "\n";
+    returnData += std::to_string(actualPlayer.getGold()) + "\n";
 
     //Saves data from actual player base
     returnData += getBaseData(actualPlayer);
@@ -349,16 +344,14 @@ std::string getDataFromPlayers(Player actualPlayer, Player enemy)
 void saveStatsToFile()
 {
     auto oppositePlayer = [](int playerTurn) -> int {
-        return (playerTurn == 1 ? 2: 1);
+        return (playerTurn == 0 ? 1: 0);
     };
 
     std::ofstream myFile(statusFileName);    
-
-    Player playerStats = getPlayer(playerTurn);
-
+        
     myFile << getDataFromPlayers(getPlayer(playerTurn), getPlayer(oppositePlayer(playerTurn)));
 
- 
+
     // Close the file
     myFile.close();
 }
@@ -397,8 +390,8 @@ std::string printResults(Player* playerStats)
     printResult += "Player1\n:";
 
     printResult += "Data about base:\n";
-    printResult += playerStats->getBase().getIndex() + "\n";
-    printResult += playerStats->getBase().getHp() + "\n";
+    printResult += playerStats->getBase()->getIndex() + "\n";
+    printResult += playerStats->getBase()->getHp() + "\n";
 
     printResult += "\n\nData about units:\n";
     if (playerStats->getUnitList().size() < 0)
@@ -434,7 +427,7 @@ void GameMenu()
         return false;
     };
 
-    while(!turnsExceeded() || (players[player1]->getBase().getHp() > 0 && players[player2]->getBase().getHp() > 0)) 
+    while(!turnsExceeded() || (players[player1]->getBase()->getHp() > 0 && players[player2]->getBase()->getHp() > 0)) 
     {
         system("clear");
         for(int i=0; i<5; i++)
@@ -449,10 +442,8 @@ void GameMenu()
         saveStatsToFile();
 
         std::cout << "Player: " << playerTurn << std::endl;
-        std::cout << "Write your command on file " << orderFileName << " and press any key on terminal to continue" << std::endl;
-        //std::cin.getline(orderCommand, 100); // use getline() function to read a string from input stream  
+        std::cout << "Write your command on file " << orderFileName << " and press any key on terminal to continue" << std::endl; 
 
-        //Important - crashes a game in Ubuntu/Debian
         std::cin.get();
 
         ReadOrderToCommand();
@@ -475,13 +466,13 @@ void GameMenu()
         }
     }
 
-    if(players[player1]->getBase().getHp() <= 0 || players[player2]->getBase().getHp() <= 0)
+    if(players[player1]->getBase()->getHp() <= 0 || players[player2]->getBase()->getHp() <= 0)
     {
-        if (players[player1]->getBase().getHp() <= 0)
+        if (players[player1]->getBase()->getHp() <= 0)
         {
             std::cout << "Player2 wins. Congratulations!\n";
         }
-        if (players[player2]->getBase().getHp() <= 0)
+        if (players[player2]->getBase()->getHp() <= 0)
         {
             std::cout << "Player1 wins. Congratulations!\n";
         }

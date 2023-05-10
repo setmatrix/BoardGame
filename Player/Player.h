@@ -7,7 +7,7 @@ class Player
     private:
         int gold;
         std::list<UnitOnBoard> units;
-        Base *base;
+        Base* base;
 
     public:
         Player()
@@ -31,9 +31,9 @@ class Player
         {
             this->units.push_back(_unit);
         }
-        Base getBase()
+        Base* getBase()
         {
-            return *base;
+            return this->base;
         }
 
         //Custom method to delete unit, when hp <= 0

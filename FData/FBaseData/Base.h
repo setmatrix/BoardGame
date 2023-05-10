@@ -23,10 +23,13 @@ class Base: private ABase
 
             if (_isOnBuild)
             {
-                this-> isOnBuild = true;
-                this->unitType = unitType;
-                this->timeToBuild = timeToBuild;                
+                this-> isOnBuild = true;               
             }
+            else {
+                this-> isOnBuild = false;
+            }
+            this->unitType = unitType;
+            this->timeToBuild = timeToBuild; 
         }
         int getHp() override
         {
