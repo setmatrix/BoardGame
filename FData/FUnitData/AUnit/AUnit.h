@@ -21,11 +21,11 @@ class AUnit
         virtual ~AUnit(){}
         virtual char getUnitType()
         {
-            return unitType;
+            return this->unitType;
         }
-        virtual int getHp(){return basehp;}
-        virtual int getSpeed(){return speed;}
-        virtual int getCost(){return cost;}
-        virtual int getAttackRange(){return attackRange;}
-        virtual int getBuildTime(){return buildTime;}
+        virtual int getHp(){return this->basehp;}
+        virtual int getSpeed(){return this->speed;}
+        virtual int getCost(){return this->cost;}
+        virtual int getAttackRange(){return this->attackRange;}
+        virtual int getBuildTime(){return this->buildTime;}
 };
