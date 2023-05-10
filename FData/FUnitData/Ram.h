@@ -6,24 +6,24 @@ class Ram: public AUnit
         ~Ram() override {}
         char getUnitType() override
         {
-            return this->unitType;
+            return Ram::unitType;
         }
         int getHp() override
         {
-            return this->basehp;
+            return Ram::basehp;
         }
         int getSpeed() override
         {
-            return this->speed;
+            return Ram::speed;
         }
         int getCost() override {
-            return this->cost;
+            return Ram::cost;
         }
         int getAttackRange() override{
-            return this->attackRange;
+            return Ram::attackRange;
         }
         int getBuildTime() override
         {
-            return this->buildTime;
+            return Ram::buildTime;
         }
 };

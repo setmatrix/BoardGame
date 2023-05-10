@@ -1,28 +1,20 @@
 #include <string>
 
 //Includes all headers from units
-#include "../FData/FUnitData/Catapult.h"
-#include "../FData/FUnitData/Archer.h"
-#include "../FData/FUnitData/Knight.h"
-#include "../FData/FUnitData/Pikeman.h"
-#include "../FData/FUnitData/Ram.h"
-#include "../FData/FUnitData/Swordsman.h"
-#include "../FData/FUnitData/Worker.h"
-
 
 void createUnit(Player actualPlayer, AUnit *unit)
 {
     if (actualPlayer.getGold() >= unit->getCost())
     {
         actualPlayer.setGold(actualPlayer.getGold() - unit->getCost());
-        actualPlayer.getBase()->addUnitToBuild(*unit);
+        actualPlayer.getBaseData()->addUnitToBuild(*unit);
     }
 }
 
 void BuildAction(Player actualPlayer, std::string *words)
 {
     //First, check if id is equal to player and base isn't in building state
-    if (actualPlayer.getBase()->getIndex() == stoi(words[0]) && !actualPlayer.getBase()->getIsOnBuild())
+    if (actualPlayer.getBaseData()->getIndex() == stoi(words[0]) && !actualPlayer.getBaseData()->getIsOnBuild())
     {
         char* array = new char[words[2].length() + 1];
 

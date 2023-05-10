@@ -12,9 +12,9 @@ class UnitOnBoard
         bool wasAttacked = false;
         int speed;
         int actionPoints;
-        int range;
+        int attackRange;
     public:
-        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _range, char _playerBase)
+        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _attackRange, char _playerBase)
         {
             this->unitType = _unitType;
             this->unitId = _unitId;
@@ -23,15 +23,8 @@ class UnitOnBoard
             this->hp = _hp;
             this->speed = _speed;
             this->actionPoints = speed;
-            this->range = _range;
+            this->attackRange = _attackRange;
             this->playerBase = _playerBase;
-        }
-        //Uses only on test
-        std::string printUnit()
-        {
-            std::string res = std::string() + unitType + " " + std::to_string(unitId) + " " + std::to_string(xCord)
-            + " " + std::to_string(yCord) + " " + std::to_string(hp);
-            return res;
         }
 
         char getUnitType()
@@ -89,9 +82,9 @@ class UnitOnBoard
             this->actionPoints = _actionPoints;
         }
 
-        int getRange()
+        int getAttackRange()
         {
-            return this->range;
+            return this->attackRange;
         }
 
         char getPlayerBase()

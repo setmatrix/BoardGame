@@ -15,74 +15,82 @@ class Base: private ABase
     public:
         Base(int _index, char _baseLetter, int _xCord, 
         int _yCord, bool _isOnBuild = false, char _unitType = '0', int timeToBuild = -1) : ABase(200, 0){
-            this->index = _index;
-            this->baseLetter = _baseLetter;
-            this->xCord = _xCord;
-            this->yCord = _yCord;
-            this->unitType = '0';
+            Base::index = _index;
+            Base::baseLetter = _baseLetter;
+            Base::xCord = _xCord;
+            Base::yCord = _yCord;
+            Base::unitType = '0';
 
             if (_isOnBuild)
             {
-                this-> isOnBuild = true;               
+                Base::isOnBuild = true;               
             }
             else {
-                this-> isOnBuild = false;
+                Base::isOnBuild = false;
             }
-            this->unitType = unitType;
-            this->timeToBuild = timeToBuild; 
+            Base::unitType = unitType;
+            Base::timeToBuild = timeToBuild; 
         }
+
+        ~Base() override {}
+
         int getHp() override
         {
-            return hp;
+            return Base::hp;
         }
+        
         void setHp(int _hp) override
         {
-            this->hp = _hp;
+            Base::hp = _hp;
         }
         int getSpeed() override{
-            return speed;
+            return Base::speed;
         }
 
         int getIndex()
         {
-            return index;
+            return Base::index;
         }
 
         char getBaseLetter()
         {
-            return baseLetter;
+            return Base::baseLetter;
         }
 
-        int getXCord() {return xCord;}
+        int getXCord() {return Base::xCord;}
 
-        int getYCord() {return yCord;}
+        int getYCord() {return Base::yCord;}
 
-        bool getIsOnBuild() {return isOnBuild;}
+        bool getIsOnBuild() {return Base::isOnBuild;}
 
-        void setIsOnBuild(bool _onBuild) {this->isOnBuild = _onBuild;}
+        void setIsOnBuild(bool _onBuild) {Base::isOnBuild = _onBuild;}
 
-        char getUnitType() {return unitType;}
+        char getUnitType() {return Base::unitType;}
 
-        int getTimeToBuild() {return timeToBuild;}
+        int getTimeToBuild() {return Base::timeToBuild;}
 
-        void setTimeToBuild(int _timeToBuild){this->timeToBuild = _timeToBuild;}
+        void setTimeToBuild(int _timeToBuild){Base::timeToBuild = _timeToBuild;}
 
         //Method to add Unit to build and changes state for base
         void addUnitToBuild(AUnit _unit)
         {
             if (!getIsOnBuild())
             {
-                this->isOnBuild = true;
-                this->unitType = _unit.getUnitType();
-                this->timeToBuild = _unit.getBuildTime();
+                Base::isOnBuild = true;
+                Base::unitType = _unit.getUnitType();
+                Base::timeToBuild = _unit.getBuildTime();
             }
         }
 
         //Resets base state
         void isNotBuilding()
         {
-            this-> isOnBuild = false;
-            this->unitType = '0';
-            this->timeToBuild = -1;  
+            if (Base::getTimeToBuild() > 0)
+            {
+                return;
+            }
+            Base::isOnBuild = false;
+            Base::unitType = '0';
+            Base::timeToBuild = -1; 
         }
 };

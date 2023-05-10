@@ -8,24 +8,24 @@ class Pikeman: public AUnit
         ~Pikeman() override {}
         char getUnitType() override
         {
-            return this->unitType;
+            return Pikeman::unitType;
         }
         int getHp() override
         {
-            return this->basehp;
+            return Pikeman::basehp;
         }
         int getSpeed() override
         {
-            return this->speed;
+            return Pikeman::speed;
         }
         int getCost() override {
-            return this->cost;
+            return Pikeman::cost;
         }
         int getAttackRange() override{
-            return this->attackRange;
+            return Pikeman::attackRange;
         }
         int getBuildTime() override
         {
-            return this->buildTime;
+            return Pikeman::buildTime;
         }
 };

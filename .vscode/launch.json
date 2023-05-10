@@ -9,7 +9,7 @@
         "request": "launch",
         "program": "${workspaceFolder}/main",
         //"program": "${workspaceFolder}/${fileBasenameNoExtension}",
-        "args": ["plansza.txt", "status.txt", "rozkazy.txt"],
+        "args": ["mapa.txt", "status.txt", "rozkazy.txt"],
         "environment": [],
         "cwd": "${workspaceFolder}"
       }]

@@ -7,24 +7,24 @@ class Catapult: public AUnit
         ~Catapult() override {}
         char getUnitType() override
         {
-            return this->unitType;
+            return Catapult::unitType;
         }
         int getHp() override
         {
-            return this->basehp;
+            return Catapult::basehp;
         }
         int getSpeed() override
         {
-            return this->speed;
+            return Catapult::speed;
         }
         int getCost() override {
-            return this->cost;
+            return Catapult::cost;
         }
         int getAttackRange() override{
-            return this->attackRange;
+            return Catapult::attackRange;
         }
         int getBuildTime() override
         {
-            return this->buildTime;
+            return Catapult::buildTime;
         }
 };

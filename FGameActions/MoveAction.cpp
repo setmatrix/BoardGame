@@ -35,6 +35,7 @@ void MoveAction(Player actualPlayer, Player enemyPlayer, std::string *words, cha
             if (stoi(words[2]) > 0 && stoi(words[2]) < 32 && stoi(words[3]) > 0 && stoi(words[3]) < 5)
             {
                 std::cout << "Your coordication are outside from board\n";
+                return;
             }
             
             std::string s(board[(stoi(words[2]), stoi(words[3]))]);
@@ -42,6 +43,7 @@ void MoveAction(Player actualPlayer, Player enemyPlayer, std::string *words, cha
             if (!s.compare("0") && !s.compare("6"))
             {
                 std::cout << "This place is an obstacle\n";
+                return;
             }
 
             if (IsEnemyUnitOnBoard(enemyPlayer, stoi(words[2]), stoi(words[3])))

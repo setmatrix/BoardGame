@@ -21,7 +21,10 @@ class Player
         }
         int getGold() {return this->gold;}
         void setGold(int _gold) {this->gold = _gold;}
-        ~Player(){}
+        ~Player(){
+            delete base;
+            units.clear();
+        }
 
         std::list<UnitOnBoard> getUnitList()
         {
@@ -31,7 +34,7 @@ class Player
         {
             this->units.push_back(_unit);
         }
-        Base* getBase()
+        Base* getBaseData()
         {
             return this->base;
         }

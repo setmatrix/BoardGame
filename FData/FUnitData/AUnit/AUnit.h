@@ -11,21 +11,21 @@ class AUnit
     public:
         AUnit(char _unitType, int _basehp, int _speed, int _cost, int _attackRange, int _buildTime)
         {
-            this->unitType = _unitType;
-            this->basehp = _basehp;
-            this->speed = _speed;
-            this->cost = _cost;
-            this->attackRange = _attackRange;
-            this->buildTime = _buildTime;
+            AUnit::unitType = _unitType;
+            AUnit::basehp = _basehp;
+            AUnit::speed = _speed;
+            AUnit::cost = _cost;
+            AUnit::attackRange = _attackRange;
+            AUnit::buildTime = _buildTime;
         }
         virtual ~AUnit(){}
         virtual char getUnitType()
         {
-            return this->unitType;
+            return AUnit::unitType;
         }
-        virtual int getHp(){return this->basehp;}
-        virtual int getSpeed(){return this->speed;}
-        virtual int getCost(){return this->cost;}
-        virtual int getAttackRange(){return this->attackRange;}
-        virtual int getBuildTime(){return this->buildTime;}
+        virtual int getHp(){return AUnit::basehp;}
+        virtual int getSpeed(){return AUnit::speed;}
+        virtual int getCost(){return AUnit::cost;}
+        virtual int getAttackRange(){return AUnit::attackRange;}
+        virtual int getBuildTime(){return AUnit::buildTime;}
 };

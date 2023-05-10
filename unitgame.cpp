@@ -8,6 +8,14 @@
 #include "Player/Player.h"
 #include "FUnitOnBoard/AttackOnBoard.h"
 
+#include "FData/FUnitData/Catapult.h"
+#include "FData/FUnitData/Archer.h"
+#include "FData/FUnitData/Knight.h"
+#include "FData/FUnitData/Pikeman.h"
+#include "FData/FUnitData/Ram.h"
+#include "FData/FUnitData/Swordsman.h"
+#include "FData/FUnitData/Worker.h"
+
 #include "FGameActions/AttackAction.cpp"
 #include "FGameActions/MoveAction.cpp"
 #include "FGameActions/BuildAction.cpp"
@@ -24,8 +32,17 @@ const char* orderFileName;
 //Twodimensional map, readed from map file
 char** boardMap;
 
+int boardX = 0;
+int boardY = 0;
+
+int player1X = 0;
+int player1Y = 0;
+
+int player2X = 0;
+int player2Y = 0;
+
 //Pointer to time
-int* timeOut;
+int timeOut;
 
 //Index for bases and units
 int unitIndex = 1;
@@ -40,7 +57,8 @@ Player** players;
 
 //PlayerTurns
 int* playerTurns;
-//Player 2
+
+clock_t time_req;
 
 //Predefined functions
 void ResetAttacksStateFromPlayer();
@@ -58,14 +76,14 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
 //If a base time to build equals zero, create a class and adds to list of units from actual player and changes base data from building
 void checkBuild()
 {
-    if (getPlayer(playerTurn).getBase()->getIsOnBuild())
+    if (getPlayer(playerTurn).getBaseData()->getIsOnBuild())
     {
         return;
     }
     
-    getPlayer(playerTurn).getBase()->setTimeToBuild(getPlayer(playerTurn).getBase()->getTimeToBuild() - 1);
+    getPlayer(playerTurn).getBaseData()->setTimeToBuild(getPlayer(playerTurn).getBaseData()->getTimeToBuild() - 1);
 
-    if (getPlayer(playerTurn).getBase()->getTimeToBuild() > 0)
+    if (getPlayer(playerTurn).getBaseData()->getTimeToBuild() > 0)
     {
         return;
     }
@@ -73,19 +91,19 @@ void checkBuild()
     auto createUnit = [](AUnit unit)
     {
         UnitOnBoard* u = new UnitOnBoard(
-            getPlayer(playerTurn).getBase()->getUnitType(), 
+            getPlayer(playerTurn).getBaseData()->getUnitType(), 
             unitIndex, 
-            getPlayer(playerTurn).getBase()->getXCord(), 
-            getPlayer(playerTurn).getBase()->getYCord(),
+            getPlayer(playerTurn).getBaseData()->getXCord(), 
+            getPlayer(playerTurn).getBaseData()->getYCord(),
             unit.getHp(),
             unit.getSpeed(),
             unit.getAttackRange(),
-            getPlayer(playerTurn).getBase()->getBaseLetter());
+            getPlayer(playerTurn).getBaseData()->getBaseLetter());
 
         getPlayer(playerTurn).addUnit(*u);
         delete u;
     };
-    switch(getPlayer(playerTurn).getBase()->getUnitType())
+    switch(getPlayer(playerTurn).getBaseData()->getUnitType())
     {
         case 'K':
         {
@@ -141,7 +159,7 @@ void checkBuild()
         }
     unitIndex += 1;
     //resets building state on base
-    getPlayer(playerTurn).getBase()->isNotBuilding();
+    getPlayer(playerTurn).getBaseData()->isNotBuilding();
 }
 
 //Each turn gets money from workers and add to player's wallet.
@@ -293,14 +311,14 @@ void mapRead()
 
 std::string getDataFromPlayers(Player actualPlayer, Player enemy)
 {
-    auto getBaseData = [](Player player) -> std::string 
+    auto getDataFromBase = [](Player player) -> std::string 
     {
-        return std::string() + player.getBase()->getBaseLetter() + " " 
-        + "B " + std::to_string(player.getBase()->getIndex()) 
-        + " " + std::to_string(player.getBase()->getXCord())
-        + " " + std::to_string(player.getBase()->getYCord())
-        + " " + std::to_string(player.getBase()->getHp())
-        + " " + player.getBase()->getUnitType() +"\n";
+        return std::string() + player.getBaseData()->getBaseLetter() + " " 
+        + "B " + std::to_string(player.getBaseData()->getIndex()) 
+        + " " + std::to_string(player.getBaseData()->getXCord())
+        + " " + std::to_string(player.getBaseData()->getYCord())
+        + " " + std::to_string(player.getBaseData()->getHp())
+        + " " + player.getBaseData()->getUnitType() +"\n";
     };
 
     auto getUnitsData = [](Player player) -> std::string 
@@ -314,7 +332,7 @@ std::string getDataFromPlayers(Player actualPlayer, Player enemy)
         for (std::list<UnitOnBoard>::iterator it= player.getUnitList().begin(); 
             it != player.getUnitList().end(); ++it)
         {
-            unitsData += std::string() + player.getBase()->getBaseLetter() + " "
+            unitsData += std::string() + player.getBaseData()->getBaseLetter() + " "
                 + std::to_string(it->getUnitId()) + " " + std::to_string(it->getXCord()) + " "
                 + std::to_string(it->getYCord()) + " " + std::to_string(it->getHp()) + "\n";
         }
@@ -327,10 +345,10 @@ std::string getDataFromPlayers(Player actualPlayer, Player enemy)
     returnData += std::to_string(actualPlayer.getGold()) + "\n";
 
     //Saves data from actual player base
-    returnData += getBaseData(actualPlayer);
+    returnData += getDataFromBase(actualPlayer);
 
     //Saves data from enemy player base
-    returnData += getBaseData(enemy);
+    returnData += getDataFromBase(enemy);
 
     //Saves actual player data from list of units
     returnData += getUnitsData(actualPlayer);
@@ -363,13 +381,13 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
     mapFileName = mapName;
     statusFileName = statusName;
     orderFileName = orderName;
-    timeOut = &time;
+    timeOut = time;
 
     players = new Player*[2];
 
-    players[player1] = new Player(unitIndex, 'P', 0, 0);
+    players[player1] = new Player(unitIndex, 'P', player1X, player1Y);
     unitIndex += 1;
-    players[player2] = new Player(unitIndex, 'E', 4, 32);
+    players[player2] = new Player(unitIndex, 'E', player2X, player2Y);
 
     playerTurns = new int[playerEnd - 1];
 
@@ -390,8 +408,8 @@ std::string printResults(Player* playerStats)
     printResult += "Player1\n:";
 
     printResult += "Data about base:\n";
-    printResult += playerStats->getBase()->getIndex() + "\n";
-    printResult += playerStats->getBase()->getHp() + "\n";
+    printResult += playerStats->getBaseData()->getIndex() + "\n";
+    printResult += playerStats->getBaseData()->getHp() + "\n";
 
     printResult += "\n\nData about units:\n";
     if (playerStats->getUnitList().size() < 0)
@@ -427,7 +445,7 @@ void GameMenu()
         return false;
     };
 
-    while(!turnsExceeded() || (players[player1]->getBase()->getHp() > 0 && players[player2]->getBase()->getHp() > 0)) 
+    while(!turnsExceeded() || (players[player1]->getBaseData()->getHp() > 0 && players[player2]->getBaseData()->getHp() > 0)) 
     {
         system("clear");
         for(int i=0; i<5; i++)
@@ -440,10 +458,15 @@ void GameMenu()
         GetGoldFromWorkers();
 
         saveStatsToFile();
-
-        std::cout << "Player: " << playerTurn << std::endl;
+        
+        std::cout << "Round: " << playerTurns[player1] + playerTurns[player2] << std::endl;
+        std::cout << "Player: " << playerTurn + 1 << std::endl;
         std::cout << "Write your command on file " << orderFileName << " and press any key on terminal to continue" << std::endl; 
 
+        time_req = clock();
+
+        while(clock() - time_req < timeOut || std::cin.get()) {}
+        
         std::cin.get();
 
         ReadOrderToCommand();
@@ -466,13 +489,13 @@ void GameMenu()
         }
     }
 
-    if(players[player1]->getBase()->getHp() <= 0 || players[player2]->getBase()->getHp() <= 0)
+    if(players[player1]->getBaseData()->getHp() <= 0 || players[player2]->getBaseData()->getHp() <= 0)
     {
-        if (players[player1]->getBase()->getHp() <= 0)
+        if (players[player1]->getBaseData()->getHp() <= 0)
         {
             std::cout << "Player2 wins. Congratulations!\n";
         }
-        if (players[player2]->getBase()->getHp() <= 0)
+        if (players[player2]->getBaseData()->getHp() <= 0)
         {
             std::cout << "Player1 wins. Congratulations!\n";
         }
@@ -516,8 +539,6 @@ void GameMenu()
             delete boardMap[i];
         }
         delete boardMap;
-
-        delete timeOut;
 
         delete players;
         return;

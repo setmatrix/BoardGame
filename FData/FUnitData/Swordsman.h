@@ -9,24 +9,24 @@ class Swordsman: public AUnit
         
         char getUnitType() override
         {
-            return this->unitType;
+            return Swordsman::unitType;
         }
         int getHp() override
         {
-            return this->basehp;
+            return Swordsman::basehp;
         }
         int getSpeed() override
         {
-            return this->speed;
+            return Swordsman::speed;
         }
         int getCost() override {
-            return this->cost;
+            return Swordsman::cost;
         }
         int getAttackRange() override{
-            return this->attackRange;
+            return Swordsman::attackRange;
         }
         int getBuildTime() override
         {
-            return this->buildTime;
+            return Swordsman::buildTime;
         }
 };

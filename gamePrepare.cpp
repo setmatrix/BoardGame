@@ -3,38 +3,102 @@
 #include "unitgame.cpp"
 
 //Predefined functions
-void gamePrepare(const char* mapName = "plansza.txt", const char* statusName = "status.txt", const char* orderName = "rozkazy.txt", int time = 5);
+void gamePrepare(const char* mapName, const char* statusName, const char* orderName, int time = 5);
 void prepare(int argc, char **argv);
 void createOrderFile(const char* orderName);
 
 //Function to create to file with map
-void prepareMapToFile(const char* mapName)
+bool prepareMapFromFile(const char* mapName)
 {
-// Create and open a text file
-    std::ofstream myFile(mapName);
+//Open and take data from file
 
-    int arr[][32] = {
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,9,9,9,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,9,9,9,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,9,9,9,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2}
-    };
+    std::ifstream boardLoading(mapName);
+    std::string row;
 
-    for(int i=0; i<5; i++)
+    std::list<std::string>rowsData;
+
+    bool firstLineRead = false;
+    int columnCount = 1;
+    int rowCount = 1;
+
+    if (boardLoading)
     {
-        for(int j=0; j<32; j++)
-        {
-            myFile << arr[i][j];
+        bool isColumnsEqual = true;
+        while (!boardLoading.eof()) {
+            getline(boardLoading, row);
+            if (!firstLineRead)
+            {
+                columnCount = row.length();
+                firstLineRead = true;
+                rowCount += 1;
+                rowsData.push_back(row);
+                continue;
+            }
+            if (columnCount != row.length())
+            {
+                isColumnsEqual = false;
+            }
+            rowCount += 1;
+            rowsData.push_back(row);
         }
-        myFile << std::endl;
-    }
+        if (!isColumnsEqual)
+        {
+            std::cout << "Your columns aren't equal.\n";
+            row.clear();
+            rowsData.clear();
+            return false;
+        }
+        else 
+        {
+            boardX = rowCount;
+            boardY = columnCount;
 
-    // Close the file
-    myFile.close();
+            bool player1Base = false;
+            bool player2Base = false;
+            bool allowedChars = true;
+
+            boardMap = new char*[boardX];
+            for(int i=0; i<boardX; i++)
+            {
+                boardMap[i] = new char[boardY];
+            }
+
+            int rowX = 0;
+            for (std::list<std::string>::iterator it = rowsData.begin(); 
+                it != rowsData.end(); ++it)
+            {
+                std::string row = *it;
+                for(int j=0; j<row.length(); j++)
+                {
+                    if ((int)row.at(j) == (int)'1') 
+                    {
+                        player1Base = true;
+                        player1X = rowX;
+                        player1Y = j;
+                    }
+                    if ((int)row.at(j) == (int)'2')
+                    {
+                        player2Base = true;
+                        player2X = rowX;
+                        player2Y = j;
+                    }
+
+                    if ((int)row.at(j) != (int)'0' && (int)row.at(j) != (int)'1' && 
+                        (int)row.at(j) != (int)'2' && (int)row.at(j) != (int)'6' && (int)row.at(j) != (int)'9')
+                    {
+                        allowedChars = false;
+                    } 
+                    boardMap[rowX][j] = row.at(j);
+                }
+                rowX += 1;
+            }
+            if (player1Base && player2Base && allowedChars) return true;
+            return false;
+        }
+    }
+    return false;
 }
 
-//Function to create an empty oder file
 void createOrderFile(const char* orderName)
 {
     std::ofstream myFile(orderName);
@@ -48,22 +112,11 @@ void prepare(int argc, char **argv)
     switch(argc)
     {
         case 1:
-        {
-            gamePrepare();
-            break;
-        }
         case 2:
-        {
-            const char* mapName = argv[1];
-            gamePrepare(mapName);
-            break;
-        }
         case 3:
         {
-            const char* mapName = argv[1];
-            const char *statusName = argv[2];
-            gamePrepare(mapName, statusName);
-            break;
+            std::cout << "Not enough parameters: " << argc << std::endl;
+            return;
         }
         case 4:
         {
@@ -86,7 +139,7 @@ void prepare(int argc, char **argv)
         {
             if (argc > 5)
             {
-                std::cout << "Too much parameters " << argc << std::endl;
+                std::cout << "Too much parameters: " << argc << std::endl;
             }
             break;
         }
@@ -96,7 +149,9 @@ void prepare(int argc, char **argv)
 //Creates status File. orderFile and run a game
 void gamePrepare(const char* mapName, const char* statusName, const char* orderName, int time)
 {
-    prepareMapToFile(mapName);
-    createOrderFile(orderName);
-    playPrepare(mapName, statusName, orderName, time);
+    if (prepareMapFromFile(mapName))
+    {
+        createOrderFile(orderName);
+        playPrepare(mapName, statusName, orderName, time);
+    }
 }

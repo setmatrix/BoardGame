@@ -17,15 +17,15 @@ int changeActionPoints(UnitOnBoard unit, int x, int y) {
 void AttackBase(Player actualPlayer, Player enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit)
 {
     //Check, if the base player wants to attack is enemy
-    if(actualPlayer.getBase()->getBaseLetter() != playerUnit->getPlayerBase())
+    if(actualPlayer.getBaseData()->getBaseLetter() != playerUnit->getPlayerBase())
     {
         //Check, if the base is on range
-        if(rangeCalculate(playerUnit->getRange(), playerUnit->getXCord(), playerUnit->getYCord(),
-            enemyPlayer.getBase()->getXCord(), 
-            enemyPlayer.getBase()->getYCord()))
+        if(rangeCalculate(playerUnit->getAttackRange(), playerUnit->getXCord(), playerUnit->getYCord(),
+            enemyPlayer.getBaseData()->getXCord(), 
+            enemyPlayer.getBaseData()->getYCord()))
         {
-            int actualBaseHp = enemyPlayer.getBase()->getHp();
-            enemyPlayer.getBase()->setHp(
+            int actualBaseHp = enemyPlayer.getBaseData()->getHp();
+            enemyPlayer.getBaseData()->setHp(
             actualBaseHp - AttackOnBoard::AttackOnEnemy(playerUnit->getUnitType(), 'B'));
         }
         else {
@@ -53,7 +53,7 @@ void AttackUnit(Player actualPlayer, Player enemyPlayer, std::list<UnitOnBoard>:
         if (enemyUnit->getUnitId() == stoi(words[2]))
         {
             //Check, if is on range
-            if(!rangeCalculate(playerUnit->getRange(), playerUnit->getXCord(), playerUnit->getYCord(),
+            if(!rangeCalculate(playerUnit->getAttackRange(), playerUnit->getXCord(), playerUnit->getYCord(),
                 enemyUnit->getXCord(), enemyUnit->getYCord()))
             {
                 std::cout << "Your enemy is out of range\n";

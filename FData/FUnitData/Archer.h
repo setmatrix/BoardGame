@@ -8,29 +8,29 @@ class Archer: public AUnit
         ~Archer() override {}
         char getUnitType() override
         {
-            return this->unitType;
+            return Archer::unitType;
         }
 
         int getHp() override
         {
-            return this->basehp;
+            return Archer::basehp;
         }
 
         int getSpeed() override
         {
-            return this->speed;
+            return Archer::speed;
         }
 
         int getCost() override {
-            return this->cost;
+            return Archer::cost;
         }
 
         int getAttackRange() override{
-            return this->attackRange;
+            return Archer::attackRange;
         }
 
         int getBuildTime() override
         {
-            return this->buildTime;
+            return Archer::buildTime;
         }
 };

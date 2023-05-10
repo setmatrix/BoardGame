@@ -8,24 +8,24 @@ class Knight: public AUnit
         ~Knight() override {}
         char getUnitType() override
         {
-            return this->unitType;
+            return Knight::unitType;
         }
         int getHp() override
         {
-            return this->basehp;
+            return Knight::basehp;
         }
         int getSpeed() override
         {
-            return this->speed;
+            return Knight::speed;
         }
         int getCost() override {
-            return this->cost;
+            return Knight::cost;
         }
         int getAttackRange() override{
-            return this->attackRange;
+            return Knight::attackRange;
         }
         int getBuildTime() override
         {
-            return this->buildTime;
+            return Knight::buildTime;
         }
 };

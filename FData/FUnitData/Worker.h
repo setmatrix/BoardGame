@@ -8,24 +8,24 @@ class Worker: public AUnit
         ~Worker() override {}
         char getUnitType() override
         {
-            return this->unitType;
+            return Worker::unitType;
         }
         int getHp() override
         {
-            return this->basehp;
+            return Worker::basehp;
         }
         int getSpeed() override
         {
-            return this->speed;
+            return Worker::speed;
         }
         int getCost() override {
-            return this->cost;
+            return Worker::cost;
         }
         int getAttackRange() override{
-            return this->attackRange;
+            return Worker::attackRange;
         }
         int getBuildTime() override
         {
-            return this->buildTime;
+            return Worker::buildTime;
         }
 };
