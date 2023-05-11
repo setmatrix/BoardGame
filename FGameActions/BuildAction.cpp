@@ -11,7 +11,7 @@ void createUnit(Player* actualPlayer, AUnit *unit)
     }
 }
 
-void BuildAction(Player* actualPlayer, std::string *words)
+bool BuildAction(Player* actualPlayer, std::string *words)
 {
     //First, check if id is equal to player and base isn't in building state
     if (actualPlayer->getBaseData()->getIndex() == stoi(words[0]) && !actualPlayer->getBaseData()->isBuilding())
@@ -30,7 +30,7 @@ void BuildAction(Player* actualPlayer, std::string *words)
                 createUnit(actualPlayer, (AUnit*) k);
                 delete k;
                 delete array;
-                return;
+                return true;
             }
             case 'S':
             {
@@ -38,7 +38,7 @@ void BuildAction(Player* actualPlayer, std::string *words)
                 createUnit(actualPlayer, (AUnit*) s);
                 delete s;
                 delete array;
-                return;
+                return true;
             }                       
             case 'A':
             {
@@ -46,7 +46,7 @@ void BuildAction(Player* actualPlayer, std::string *words)
                 createUnit(actualPlayer, (AUnit*) a);
                 delete a;
                 delete array;
-                return;
+                return true;
             }
             case 'P':
             {
@@ -54,7 +54,7 @@ void BuildAction(Player* actualPlayer, std::string *words)
                 createUnit(actualPlayer, (AUnit*) p);
                 delete p;
                 delete array;
-                return;
+                return true;
             }
             case 'C':
             {
@@ -62,7 +62,7 @@ void BuildAction(Player* actualPlayer, std::string *words)
                 createUnit(actualPlayer, (AUnit*) c);
                 delete c;
                 delete array;
-                return;
+                return true;
             }
             case 'R':
             {
@@ -70,7 +70,7 @@ void BuildAction(Player* actualPlayer, std::string *words)
                 createUnit(actualPlayer, (AUnit*) r);
                 delete r;
                 delete array;
-                return;
+                return true;
             }
             case 'W':
             {
@@ -78,17 +78,17 @@ void BuildAction(Player* actualPlayer, std::string *words)
                 createUnit(actualPlayer, (AUnit*) w);
                 delete w;
                 delete array;
-                return;
+                return true;
             }
             default:
             {
                 std::cout << "Unit doesn't exist" << std::endl;
                 delete array;
-                return;
+                return false;
             }
         }
         delete array;
-        return;
+        return false;
     }
-    return;
+    return false;
 }

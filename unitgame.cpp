@@ -66,7 +66,7 @@ void GetGoldFromWorkers();
 void checkBuild();
 void ReadOrderToCommand();
 Player getPlayer(short playerTurn);
-void checkCommand(std::list<std::string> listwords);
+bool checkCommand(std::list<std::string> listwords);
 void mapRead();
 void saveStatsToFile();
 void GameMenu();
@@ -205,9 +205,11 @@ void ReadOrderToCommand()
 
 	stream.open(orderFileName);
 
+    bool isCommandCorrect = true;
+
 	if(stream.is_open())
 	{
-		while(std::getline(stream,line))
+		while(std::getline(stream,line) && isCommandCorrect)
 		{
 			std::stringstream ss(line);
 
@@ -216,7 +218,7 @@ void ReadOrderToCommand()
 				listwords.push_back(line);
 			}
             //Each line are going to function checkCommands, where do some actions, if writed properly.
-            checkCommand(listwords);
+            isCommandCorrect = checkCommand(listwords);
             listwords.clear();
 		}
     }
@@ -224,7 +226,7 @@ void ReadOrderToCommand()
 
 //Commands from orderFile on name defined by users
 //Respectively do action saved in file ('M' - move, 'A' - attack, 'B' - build)
-void checkCommand(std::list<std::string> listwords)
+bool checkCommand(std::list<std::string> listwords)
 {
     auto enemyPlayer = [](int playerTurn) -> int {
         return (playerTurn == 0 ? 1: 0);
@@ -233,7 +235,7 @@ void checkCommand(std::list<std::string> listwords)
     if(listwords.size() < 3 && listwords.size() > 4)
     {
         std::cout << "Unknown command" << std::endl;
-        return;
+        return false;
     } 
 
     //Create a array of string coresponds to index;
@@ -246,29 +248,33 @@ void checkCommand(std::list<std::string> listwords)
         local_index += 1;
     }
     listwords.clear();
+
     if(words[1].length() == 1)
     {
+        bool isCommandCorrect = false;
+
         //If move was detected:
         if (words[1].compare("M") == 0)
         {
-            MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], words, boardMap, boardX, boardY);
+            isCommandCorrect = MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], words, boardMap, boardX, boardY);
         }
 
         //If attack was detected:
         if (words[1].compare("A") == 0)
         {   
-            AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], words);
+            isCommandCorrect = AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], words);
         }
 
         //If build was detected:
         if (words[1].compare("B") == 0)
         {
-            BuildAction(players[playerTurn], words);
+            isCommandCorrect = BuildAction(players[playerTurn], words);
         }
         words->clear();
+        return isCommandCorrect;
     }
     std::cout << "Unknown command" << std::endl;
-    return;
+    return false;
 }
 
 std::string getDataFromPlayers(Player* actualPlayer, Player* enemy)
@@ -276,7 +282,7 @@ std::string getDataFromPlayers(Player* actualPlayer, Player* enemy)
     auto getDataFromBase = [](Player* player) -> std::string 
     {
         return std::string() + player->getBaseData()->getOwner() + " " 
-        + "B " + std::to_string(player->getBaseData()->getIndex()) 
+        + player->getBaseData()->getBaseLetter()+ " " + std::to_string(player->getBaseData()->getIndex()) 
         + " " + std::to_string(player->getBaseData()->getXCord())
         + " " + std::to_string(player->getBaseData()->getYCord())
         + " " + std::to_string(player->getBaseData()->getHp())

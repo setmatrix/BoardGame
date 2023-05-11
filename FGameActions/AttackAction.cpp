@@ -15,7 +15,7 @@ int changeActionPoints(UnitOnBoard unit, int x, int y)
     return availablePoints - usingActionPoints;
 }
 
-void AttackBase(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit)
+bool AttackBase(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit)
 {
     // Check, if the base player wants to attack is enemy
     if (actualPlayer->getBaseData()->getOwner() != playerUnit->getOwner())
@@ -32,24 +32,24 @@ void AttackBase(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard
         else
         {
             std::cout << "Enemy base is out of range\n";
-            return;
+            return false;
         }
-        return;
+        return true;
     }
     else
     {
         std::cout << "Cannot attack your own base\n";
-        return;
+        return false;
     }
-    return;
+    return false;
 }
 
-void AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit, std::string *words)
+bool AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit, std::string *words)
 {
     if (enemyPlayer->getUnitList().size() <= 0)
     {
         std::cout << "Your enemy doesn't have units to attack!\n";
-        return;
+        return false;
     }
     // Attack on enemy
 
@@ -65,7 +65,7 @@ void AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard
                                 enemyUnit->getXCord(), enemyUnit->getYCord()))
             {
                 std::cout << "Your enemy is out of range\n";
-                return;
+                return false;
             }
             // Get hp from unit and attackDamage from static method
             int enemyHp = enemyUnit->getHp();
@@ -84,18 +84,18 @@ void AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard
                 // Delete from list of units
                 actualPlayer->deleteUnit(*enemyUnit);
             }
-            return;
+            return true;
         }
     }
-    return;
+    return false;
 }
 
-void AttackAction(Player *actualPlayer, Player *enemyPlayer, std::string *words)
+bool AttackAction(Player *actualPlayer, Player *enemyPlayer, std::string *words)
 {
     if (actualPlayer->getUnitList().size() <= 0)
     {
         std::cout << "You can't attack if you don't have an unit.\n";
-        return;
+        return false;
     }
 
     std::list<UnitOnBoard>::iterator playerUnit = actualPlayer->getUnitList().begin();
@@ -109,20 +109,20 @@ void AttackAction(Player *actualPlayer, Player *enemyPlayer, std::string *words)
             if (!playerUnit->getAttack())
             {
                 std::cout << "Your unit already attacked\n";
-                return;
+                return false;
             }
             if ((stoi(words[2]) == actualPlayer->getBaseData()->getXCord() && stoi(words[3]) == actualPlayer->getBaseData()->getYCord()) || (stoi(words[2]) == enemyPlayer->getBaseData()->getXCord() && stoi(words[3]) == enemyPlayer->getBaseData()->getYCord()))
             {
                 // Attack on base
-                AttackBase(actualPlayer, enemyPlayer, playerUnit);
+                return AttackBase(actualPlayer, enemyPlayer, playerUnit);
             }
             else
             {
                 // Attack on unit
-                AttackUnit(actualPlayer, enemyPlayer, playerUnit, words);
+                return AttackUnit(actualPlayer, enemyPlayer, playerUnit, words);
             }
             break;
         }
     }
-    return;
+    return false;
 }
