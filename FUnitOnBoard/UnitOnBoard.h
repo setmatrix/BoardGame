@@ -4,7 +4,7 @@ class UnitOnBoard
     // Format linii określającej jednostkę na planszy:
     private:
         char unitType;
-        char playerBase;
+        char owner;
         int unitId;
         int xCord;
         int yCord;
@@ -15,7 +15,7 @@ class UnitOnBoard
         int attackRange;
 
     public:
-        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _attackRange, char _playerBase)
+        UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _attackRange, char _owner)
         {
             UnitOnBoard::unitType = _unitType;
             UnitOnBoard::unitId = _unitId;
@@ -25,7 +25,7 @@ class UnitOnBoard
             UnitOnBoard::speed = _speed;
             UnitOnBoard::actionPoints = speed;
             UnitOnBoard::attackRange = _attackRange;
-            UnitOnBoard::playerBase = _playerBase;
+            UnitOnBoard::owner = _owner;
         }
 
         char getUnitType()
@@ -88,9 +88,9 @@ class UnitOnBoard
             return UnitOnBoard::attackRange;
         }
 
-        char getPlayerBase()
+        char getOwner()
         {
-            return UnitOnBoard::playerBase;
+            return UnitOnBoard::owner;
         }
 
         void resetAction()

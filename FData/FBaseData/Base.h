@@ -14,10 +14,10 @@ class Base: private ABase
         char unitType;
         int timeToCreateUnit;
     public:
-        Base(int _index, char _baseLetter, int _xCord, 
+        Base(int _index, char _owner, int _xCord, 
         int _yCord, bool _isbuilding = false, char _unitType = '0', int _timeToCreateUnit = -1) : ABase(200, 0){
             Base::index = _index;
-            Base::baseLetter = _baseLetter;
+            Base::owner = _owner;
             Base::xCord = _xCord;
             Base::yCord = _yCord;
             Base::unitType = '0';
@@ -81,6 +81,11 @@ class Base: private ABase
                 Base::unitType = _unit.getUnitType();
                 Base::timeToCreateUnit = _unit.getCreateTime();
             }
+        }
+
+        char getOwner()
+        {
+            return Base::owner;
         }
 
         //Resets base state

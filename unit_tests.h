@@ -12,8 +12,8 @@ void createDeleteDefaultBaseObject()
     Base *base = new Base(0, 'T', 0, 0);
 
     std::string getDataFromBase = std::string() + std::to_string(base->getIndex()) + " " +
-        base->getBaseLetter() + " " + std::to_string(base->getXCord()) + " " + std::to_string(base->getYCord())
-        + " " + std::to_string(base->getIsOnBuild()) + " " + base->getUnitType() + " " + std::to_string(base->getTimeToBuild());
+        base->getOwner() + " " + std::to_string(base->getXCord()) + " " + std::to_string(base->getYCord())
+        + " " + std::to_string(base->isBuilding()) + " " + base->getUnitType() + " " + std::to_string(base->getTimeToCreate());
     assert(getDataFromBase.compare("0 T 0 0 false 0 -1"));
     
     delete base;
@@ -25,13 +25,13 @@ void checkBuildStateBase()
 
     Archer* a = new Archer();
 
-    base->addUnitToBuild(*a);
+    base->addUnitToCreate(*a);
 
-    std::string getDataFromBase = std::string() + base->getUnitType() + " " + std::to_string(base->getTimeToBuild());
+    std::string getDataFromBase = std::string() + base->getUnitType() + " " + std::to_string(base->getTimeToCreate());
 
     std::cout << getDataFromBase << std::endl;
 
-    std::string getDataFromArcher = std::string() + a->getUnitType() + " " + std::to_string(a->getBuildTime());
+    std::string getDataFromArcher = std::string() + a->getUnitType() + " " + std::to_string(a->getCreateTime());
 
     assert(getDataFromBase == getDataFromArcher);
     
@@ -43,17 +43,17 @@ void createUnit()
 {
     Base *base = new Base(0, 'T', 0, 0);
     Archer* a = new Archer();
-    base->addUnitToBuild(*a);
+    base->addUnitToCreate(*a);
 
-    for(int i=0; i < a->getBuildTime(); i++)
+    for(int i=0; i < a->getCreateTime(); i++)
     {
-        base->setTimeToBuild(base->getTimeToBuild() - 1);
+        base->setTimeToCreateUnit(base->getTimeToCreate() - 1);
     }
     base->isNotBuilding();
     
-    std::cout << base->getTimeToBuild() << std::endl;
+    std::cout << base->getTimeToCreate() << std::endl;
     
-    assert(base->getIsOnBuild() == 0);
+    assert(base->isBuilding() == 0);
 
     delete base;
     delete a;
@@ -79,7 +79,7 @@ void addUnitToList()
         k->getHp(),
         k->getSpeed(),
         k->getAttackRange(),
-    player->getBaseData()->getBaseLetter());
+    player->getBaseData()->getOwner());
     player->addUnit(*u);
 
     std::list<UnitOnBoard> list = player->getUnitList();
@@ -112,7 +112,7 @@ void deleteUnitFromListPlayer()
         k->getHp(),
         k->getSpeed(),
         k->getAttackRange(),
-    player->getBaseData()->getBaseLetter());
+    player->getBaseData()->getOwner());
     player->addUnit(*u);
 
     player->deleteUnit(*u);

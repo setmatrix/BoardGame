@@ -11,7 +11,7 @@ void createUnit(Player* actualPlayer, AUnit *unit)
     }
 }
 
-bool BuildAction(Player* actualPlayer, std::string *words)
+void BuildAction(Player* actualPlayer, std::string *words)
 {
     //First, check if id is equal to player and base isn't in building state
     if (actualPlayer->getBaseData()->getIndex() == stoi(words[0]) && !actualPlayer->getBaseData()->isBuilding())
@@ -29,59 +29,66 @@ bool BuildAction(Player* actualPlayer, std::string *words)
                 Knight *k = new Knight();
                 createUnit(actualPlayer, (AUnit*) k);
                 delete k;
-                return true;
+                delete array;
+                return;
             }
             case 'S':
             {
                 Swordsman *s = new Swordsman();
                 createUnit(actualPlayer, (AUnit*) s);
                 delete s;
-                return true;
+                delete array;
+                return;
             }                       
             case 'A':
             {
                 Archer *a = new Archer();
                 createUnit(actualPlayer, (AUnit*) a);
                 delete a;
-                return true;
+                delete array;
+                return;
             }
             case 'P':
             {
                 Pikeman *p = new Pikeman();
                 createUnit(actualPlayer, (AUnit*) p);
                 delete p;
-                return true;
+                delete array;
+                return;
             }
             case 'C':
             {
                 Catapult *c = new Catapult();
                 createUnit(actualPlayer, (AUnit*) c);
                 delete c;
-                return true;
+                delete array;
+                return;
             }
             case 'R':
             {
                 Ram *r = new Ram();
                 createUnit(actualPlayer, (AUnit*) r);
                 delete r;
-                return true;
+                delete array;
+                return;
             }
             case 'W':
             {
                 Worker *w = new Worker();
                 createUnit(actualPlayer, (AUnit*) w);
                 delete w;
-                return true;
+                delete array;
+                return;
             }
             default:
             {
                 std::cout << "Unit doesn't exist" << std::endl;
                 delete array;
-                return false;
+                return;
             }
         }
         delete array;
-        return false;
+        return;
     }
-    return false;
+    return;
 }

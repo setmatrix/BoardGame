@@ -64,10 +64,9 @@ bool prepareMapFromFile(const char* mapName)
             }
 
             int rowX = 0;
-            for (std::list<std::string>::iterator it = rowsData.begin(); 
-                it != rowsData.end(); ++it)
+            for (std::string &it : rowsData) 
             {
-                std::string row = *it;
+                std::string row = it;
                 for(int j=0; j<row.length(); j++)
                 {
                     if ((int)row.at(j) == (int)'1') 

@@ -5,10 +5,9 @@ bool IsEnemyUnitOnBoard(Player* enemyPlayer, int x, int y)
 {
     std::list<UnitOnBoard> units = enemyPlayer->getUnitList();
 
-    for (std::list<UnitOnBoard>::iterator it= units.begin(); 
-        it != units.end(); ++it)
+    for(UnitOnBoard unit : units)
     {
-        if (it->getXCord() == x && it->getYCord() == y)
+        if (unit.getXCord() == x && unit.getYCord() == y)
         {
             units.clear();
             return true;
@@ -18,54 +17,57 @@ bool IsEnemyUnitOnBoard(Player* enemyPlayer, int x, int y)
     return false;
 }
 
-bool MoveAction(Player* actualPlayer, Player* enemyPlayer, std::string *words, char** board, int boardX, int boardY)
+void MoveAction(Player* actualPlayer, Player* enemyPlayer, std::string *words, char** board, int boardX, int boardY)
 {
     if (actualPlayer->getUnitList().size() <= 0)
     {
         std::cout << "You haven't an unit to play\n";
-        return false;
+        return;
     }
-    for (std::list<UnitOnBoard>::iterator it= actualPlayer->getUnitList().begin(); 
-        it != actualPlayer->getUnitList().end(); ++it)
+
+    std::list<UnitOnBoard>::iterator it = actualPlayer->getUnitList().begin();
+
+    while (it != actualPlayer->getUnitList().end())
     {
         //Check if unit Id is equal to Id from file.
         if (it->getUnitId() == stoi(words[0]))
         {
+            UnitOnBoard& s(*it);
             //Then check, if Cordinates are on board
             if (stoi(words[2]) < 0 || stoi(words[2]) > boardX || stoi(words[3]) < 0 || stoi(words[3]) > boardY)
             {
                 std::cout << "Your coordication are outside from board\n";
-                return false;
+                return;
             }
             
             std::string field(board[(stoi(words[2]), stoi(words[3]))]);
             std::string getPlayerBase;
-            getPlayerBase = actualPlayer->getBaseData()->getBaseLetter();
+            getPlayerBase = enemyPlayer->getBaseData()->getOwner();
             //Lastly, check if Coordinates from file are pointing to road, base, or cave and are on range to unit.
             if (!field.compare("0") && !field.compare("6") && !field.compare(getPlayerBase))
             {
                 std::cout << "This place is an obstacle or enemy player's base\n";
-                return false;
+                return;
             }
 
             if (IsEnemyUnitOnBoard(enemyPlayer, stoi(words[2]), stoi(words[3])))
             {
                 std::cout << "Enemy on this coordination exists\n";
-                return false;
+                return;
             }
 
             if(!rangeCalculate(it->getActionPoints(), it->getXCord(), it->getYCord(), stoi(words[2]), stoi(words[3])))
             {
                 std::cout << "Not enough Action Points\n";
-                return false;
+                return;
             }
 
             //Decreases action points from move and set new Coorinates to unit.
-            it->setActionPoints(changeActionPoints(*it, stoi(words[2]), stoi(words[3])));
-            it->setXCord(stoi(words[2]));
-            it->setYCord(stoi(words[3]));
-            return true;
+            s.setActionPoints(changeActionPoints(*it, stoi(words[2]), stoi(words[3])));
+            s.setXCord(stoi(words[2]));
+            s.setYCord(stoi(words[3]));
+            return;
         }
     }
-    return false;
+    return;
 }

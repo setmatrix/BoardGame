@@ -66,7 +66,7 @@ void GetGoldFromWorkers();
 void checkBuild();
 void ReadOrderToCommand();
 Player getPlayer(short playerTurn);
-bool checkCommand(std::list<std::string> listwords);
+void checkCommand(std::list<std::string> listwords);
 void mapRead();
 void saveStatsToFile();
 void GameMenu();
@@ -98,7 +98,7 @@ void checkBuild()
             unit.getHp(),
             unit.getSpeed(),
             unit.getAttackRange(),
-            players[playerTurn]->getBaseData()->getBaseLetter());
+            players[playerTurn]->getBaseData()->getOwner());
 
         players[playerTurn]->addUnit(*u);
         delete u;
@@ -110,49 +110,49 @@ void checkBuild()
             Knight* k = new Knight();
             createUnit((AUnit) *k);
             delete k;
-            return;
+            break;
         }
         case 'S':
         {
             Swordsman* s = new Swordsman();
             createUnit((AUnit) *s);
             delete s;
-            return;
+            break;
         }                       
         case 'A':
         {
             Archer* a = new Archer();
             createUnit((AUnit) *a);
             delete a;
-            return;
+            break;
         }
         case 'P':
         {
             Pikeman* p = new Pikeman();
             createUnit((AUnit) *p);
             delete p;
-            return;
+            break;
         }
         case 'C':
         {
             Catapult* c = new Catapult();
             createUnit((AUnit) *c);
             delete c;
-            return;
+            break;
         }
         case 'R':
         {
             Ram* r = new Ram();
             createUnit((AUnit) *r);
             delete r;
-            return;
+            break;
         }
         case 'W':
         {
             Worker* w = new Worker();
             createUnit((AUnit) *w);
             delete w;
-            return;
+            break;
         }
         default:
             return;
@@ -169,12 +169,11 @@ void GetGoldFromWorkers()
     if (units.size() > 0)
     {
         int goldFromWorkers = 0;
-        for (std::list<UnitOnBoard>::iterator it= players[playerTurn]->getUnitList().begin(); 
-            it != players[playerTurn]->getUnitList().end(); ++it)
+        for(UnitOnBoard &it : players[playerTurn]->getUnitList())
         {
-            std::string a(boardMap[it->getXCord(), it->getYCord()]);
+            std::string a(boardMap[it.getXCord(), it.getYCord()]);
 
-            if (a.compare("6"))
+            if (a == "6")
             {
                 goldFromWorkers += 50;
             }
@@ -188,10 +187,9 @@ void ResetAttacksStateFromPlayer()
 {
     if (players[playerTurn]->getUnitList().size() > 0)
     {
-        for(std::list<UnitOnBoard>::iterator it = players[playerTurn]->getUnitList().begin(); 
-            it != players[playerTurn]->getUnitList().end(); it++)
+        for(UnitOnBoard &it : players[playerTurn]->getUnitList())
         {
-            it->resetAction();
+            it.resetAction();
         }
     }
 }
@@ -207,11 +205,9 @@ void ReadOrderToCommand()
 
 	stream.open(orderFileName);
 
-    bool isCommandCorrect = true;
-
 	if(stream.is_open())
 	{
-		while(std::getline(stream,line) && isCommandCorrect)
+		while(std::getline(stream,line))
 		{
 			std::stringstream ss(line);
 
@@ -220,7 +216,7 @@ void ReadOrderToCommand()
 				listwords.push_back(line);
 			}
             //Each line are going to function checkCommands, where do some actions, if writed properly.
-            isCommandCorrect = checkCommand(listwords);
+            checkCommand(listwords);
             listwords.clear();
 		}
     }
@@ -228,7 +224,7 @@ void ReadOrderToCommand()
 
 //Commands from orderFile on name defined by users
 //Respectively do action saved in file ('M' - move, 'A' - attack, 'B' - build)
-bool checkCommand(std::list<std::string> listwords)
+void checkCommand(std::list<std::string> listwords)
 {
     auto enemyPlayer = [](int playerTurn) -> int {
         return (playerTurn == 0 ? 1: 0);
@@ -237,7 +233,7 @@ bool checkCommand(std::list<std::string> listwords)
     if(listwords.size() < 3 && listwords.size() > 4)
     {
         std::cout << "Unknown command" << std::endl;
-        return false;
+        return;
     } 
 
     //Create a array of string coresponds to index;
@@ -252,36 +248,34 @@ bool checkCommand(std::list<std::string> listwords)
     listwords.clear();
     if(words[1].length() == 1)
     {
-        bool isCommandCorrect = false;
         //If move was detected:
         if (words[1].compare("M") == 0)
         {
-            isCommandCorrect = MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], words, boardMap, boardX, boardY);
+            MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], words, boardMap, boardX, boardY);
         }
 
         //If attack was detected:
         if (words[1].compare("A") == 0)
         {   
-            isCommandCorrect = AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], words);
+            AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], words);
         }
 
         //If build was detected:
         if (words[1].compare("B") == 0)
         {
-            isCommandCorrect = BuildAction(players[playerTurn], words);
+            BuildAction(players[playerTurn], words);
         }
         words->clear();
-        return isCommandCorrect;
     }
     std::cout << "Unknown command" << std::endl;
-    return false;
+    return;
 }
 
 std::string getDataFromPlayers(Player* actualPlayer, Player* enemy)
 {
     auto getDataFromBase = [](Player* player) -> std::string 
     {
-        return std::string() + player->getBaseData()->getBaseLetter() + " " 
+        return std::string() + player->getBaseData()->getOwner() + " " 
         + "B " + std::to_string(player->getBaseData()->getIndex()) 
         + " " + std::to_string(player->getBaseData()->getXCord())
         + " " + std::to_string(player->getBaseData()->getYCord())
@@ -297,12 +291,11 @@ std::string getDataFromPlayers(Player* actualPlayer, Player* enemy)
         }
         //Saves actual player data from list of unit
         std::string unitsData = "";
-        for (std::list<UnitOnBoard>::iterator it= player->getUnitList().begin(); 
-            it != player->getUnitList().end(); ++it)
+        for(UnitOnBoard &it : player->getUnitList())
         {
-            unitsData += std::string() + player->getBaseData()->getBaseLetter() + " "
-                + std::to_string(it->getUnitId()) + " " + std::to_string(it->getXCord()) + " "
-                + std::to_string(it->getYCord()) + " " + std::to_string(it->getHp()) + "\n";
+            unitsData += std::string() + player->getBaseData()->getOwner() + " " + it.getUnitType() + " "
+                + std::to_string(it.getUnitId()) + " " + std::to_string(it.getXCord()) + " "
+                + std::to_string(it.getYCord()) + " " + std::to_string(it.getHp()) + "\n";
         }
         return unitsData;
     };
@@ -383,11 +376,10 @@ std::string printResults(Player* playerStats)
     {
         return printResult;
     }
-    for (std::list<UnitOnBoard>::iterator it= playerStats->getUnitList().begin(); 
-        it != playerStats->getUnitList().end(); ++it)
+    for(UnitOnBoard &it : playerStats->getUnitList())
     {
-        printResult += std::to_string(it->getUnitId()) + " " + std::to_string(it->getUnitType()) + " " + 
-            std::to_string(it->getHp()) + " " + std::to_string(it->getXCord()) + " " + std::to_string(it->getYCord()) + "\n";
+        printResult += std::to_string(it.getUnitId()) + " " + std::to_string(it.getUnitType()) + " " + 
+            std::to_string(it.getHp()) + " " + std::to_string(it.getXCord()) + " " + std::to_string(it.getYCord()) + "\n";
     }
     return printResult;
 }
