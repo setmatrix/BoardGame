@@ -29,8 +29,8 @@ class Archer: public AUnit
             return Archer::attackRange;
         }
 
-        int getBuildTime() override
+        int getCreateTime() override
         {
-            return Archer::buildTime;
+            return Archer::createTime;
         }
 };

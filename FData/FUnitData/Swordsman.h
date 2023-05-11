@@ -1,12 +1,12 @@
 #include <string>
 
-class Swordsman: public AUnit
+class Swordsman : public AUnit
 {
     public:
-        Swordsman() : AUnit('S', 60, 2, 250, 1, 3){}
-        
+        Swordsman() : AUnit('S', 60, 2, 250, 1, 3) {}
+
         ~Swordsman() override {}
-        
+
         char getUnitType() override
         {
             return Swordsman::unitType;
@@ -19,14 +19,16 @@ class Swordsman: public AUnit
         {
             return Swordsman::speed;
         }
-        int getCost() override {
+        int getCost() override
+        {
             return Swordsman::cost;
         }
-        int getAttackRange() override{
+        int getAttackRange() override
+        {
             return Swordsman::attackRange;
         }
-        int getBuildTime() override
+        int getCreateTime() override
         {
-            return Swordsman::buildTime;
+            return Swordsman::createTime;
         }
 };

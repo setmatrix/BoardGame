@@ -22,8 +22,8 @@ class Ram: public AUnit
         int getAttackRange() override{
             return Ram::attackRange;
         }
-        int getBuildTime() override
+        int getCreateTime() override
         {
-            return Ram::buildTime;
+            return Ram::createTime;
         }
 };

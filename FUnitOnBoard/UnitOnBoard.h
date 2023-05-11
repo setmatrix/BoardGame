@@ -9,92 +9,93 @@ class UnitOnBoard
         int xCord;
         int yCord;
         int hp;
-        bool wasAttacked = false;
+        bool attacked = false;
         int speed;
         int actionPoints;
         int attackRange;
+
     public:
         UnitOnBoard(char _unitType, int _unitId, int _xCord, int _yCord, int _hp, int _speed, int _attackRange, char _playerBase)
         {
-            this->unitType = _unitType;
-            this->unitId = _unitId;
-            this->xCord = _xCord;
-            this->yCord = _yCord;
-            this->hp = _hp;
-            this->speed = _speed;
-            this->actionPoints = speed;
-            this->attackRange = _attackRange;
-            this->playerBase = _playerBase;
+            UnitOnBoard::unitType = _unitType;
+            UnitOnBoard::unitId = _unitId;
+            UnitOnBoard::xCord = _xCord;
+            UnitOnBoard::yCord = _yCord;
+            UnitOnBoard::hp = _hp;
+            UnitOnBoard::speed = _speed;
+            UnitOnBoard::actionPoints = speed;
+            UnitOnBoard::attackRange = _attackRange;
+            UnitOnBoard::playerBase = _playerBase;
         }
 
         char getUnitType()
         {
-            return this->unitType;
+            return UnitOnBoard::unitType;
         }
         int getUnitId()
         {
-            return this->unitId;
+            return UnitOnBoard::unitId;
         }
         int getXCord()
         {
-            return this->xCord;
+            return UnitOnBoard::xCord;
         }
         void setXCord(int _xCord)
         {
-            this->xCord = _xCord;
+            UnitOnBoard::xCord = _xCord;
         }
         int getYCord()
         {
-            return this->yCord;
+            return UnitOnBoard::yCord;
         }
         void setYCord(int _yCord)
         {
-            this->yCord = _yCord;
+            UnitOnBoard::yCord = _yCord;
         }
         int getHp()
         {
-            return this->hp;
+            return UnitOnBoard::hp;
         }
         void setHp(int _hp)
         {
-            this->hp = _hp;
+            UnitOnBoard::hp = _hp;
         }
-        void SetwasAttacking(bool _attack)
+        void setAttacking(bool _attacked)
         {
-            this->wasAttacked = _attack;
+            UnitOnBoard::attacked = _attacked;
         }
-        bool getwasAttacking()
+        bool getAttack()
         {
-            return this->wasAttacked;
+            return UnitOnBoard::attacked;
         }
         int getSpeed()
         {
-            return this->speed;
+            return UnitOnBoard::speed;
         }
-        
+
         int getActionPoints()
         {
-            return this->actionPoints;
+            return UnitOnBoard::actionPoints;
         }
 
         void setActionPoints(int _actionPoints)
         {
-            this->actionPoints = _actionPoints;
+            UnitOnBoard::actionPoints = _actionPoints;
         }
 
         int getAttackRange()
         {
-            return this->attackRange;
+            return UnitOnBoard::attackRange;
         }
 
         char getPlayerBase()
         {
-            return this->playerBase;
+            return UnitOnBoard::playerBase;
         }
 
         void resetAction()
         {
-            this->actionPoints = speed;
-            this->wasAttacked = false;
+            UnitOnBoard::actionPoints = speed;
+            UnitOnBoard::attacked = false;
         }
 };

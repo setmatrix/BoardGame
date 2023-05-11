@@ -24,8 +24,8 @@ class Pikeman: public AUnit
         int getAttackRange() override{
             return Pikeman::attackRange;
         }
-        int getBuildTime() override
+        int getCreateTime() override
         {
-            return Pikeman::buildTime;
+            return Pikeman::createTime;
         }
 };

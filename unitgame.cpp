@@ -4,6 +4,8 @@
 #include <list>
 #include <cstring>
 #include <sstream>
+#include <thread>
+#include <chrono>
 
 #include "Player/Player.h"
 #include "FUnitOnBoard/AttackOnBoard.h"
@@ -58,15 +60,13 @@ Player** players;
 //PlayerTurns
 int* playerTurns;
 
-clock_t time_req;
-
 //Predefined functions
 void ResetAttacksStateFromPlayer();
 void GetGoldFromWorkers();
 void checkBuild();
 void ReadOrderToCommand();
 Player getPlayer(short playerTurn);
-void checkCommand(std::list<std::string> listwords);
+bool checkCommand(std::list<std::string> listwords);
 void mapRead();
 void saveStatsToFile();
 void GameMenu();
@@ -76,14 +76,14 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
 //If a base time to build equals zero, create a class and adds to list of units from actual player and changes base data from building
 void checkBuild()
 {
-    if (getPlayer(playerTurn).getBaseData()->getIsOnBuild())
+    if (!players[playerTurn]->getBaseData()->isBuilding())
     {
         return;
     }
     
-    getPlayer(playerTurn).getBaseData()->setTimeToBuild(getPlayer(playerTurn).getBaseData()->getTimeToBuild() - 1);
+    players[playerTurn]->getBaseData()->setTimeToCreateUnit(players[playerTurn]->getBaseData()->getTimeToCreate() - 1);
 
-    if (getPlayer(playerTurn).getBaseData()->getTimeToBuild() > 0)
+    if (players[playerTurn]->getBaseData()->getTimeToCreate() > 0)
     {
         return;
     }
@@ -91,86 +91,86 @@ void checkBuild()
     auto createUnit = [](AUnit unit)
     {
         UnitOnBoard* u = new UnitOnBoard(
-            getPlayer(playerTurn).getBaseData()->getUnitType(), 
+            players[playerTurn]->getBaseData()->getUnitType(), 
             unitIndex, 
-            getPlayer(playerTurn).getBaseData()->getXCord(), 
-            getPlayer(playerTurn).getBaseData()->getYCord(),
+            players[playerTurn]->getBaseData()->getXCord(), 
+            players[playerTurn]->getBaseData()->getYCord(),
             unit.getHp(),
             unit.getSpeed(),
             unit.getAttackRange(),
-            getPlayer(playerTurn).getBaseData()->getBaseLetter());
+            players[playerTurn]->getBaseData()->getBaseLetter());
 
-        getPlayer(playerTurn).addUnit(*u);
+        players[playerTurn]->addUnit(*u);
         delete u;
     };
-    switch(getPlayer(playerTurn).getBaseData()->getUnitType())
+    switch(players[playerTurn]->getBaseData()->getUnitType())
     {
         case 'K':
         {
             Knight* k = new Knight();
             createUnit((AUnit) *k);
             delete k;
-            break;
+            return;
         }
         case 'S':
         {
             Swordsman* s = new Swordsman();
             createUnit((AUnit) *s);
             delete s;
-            break;
+            return;
         }                       
         case 'A':
         {
             Archer* a = new Archer();
             createUnit((AUnit) *a);
             delete a;
-            break;
+            return;
         }
         case 'P':
         {
             Pikeman* p = new Pikeman();
             createUnit((AUnit) *p);
             delete p;
-            break;
+            return;
         }
         case 'C':
         {
             Catapult* c = new Catapult();
             createUnit((AUnit) *c);
             delete c;
-            break;
+            return;
         }
         case 'R':
         {
             Ram* r = new Ram();
             createUnit((AUnit) *r);
             delete r;
-            break;
+            return;
         }
         case 'W':
         {
             Worker* w = new Worker();
             createUnit((AUnit) *w);
             delete w;
-            break;
+            return;
         }
         default:
             return;
         }
     unitIndex += 1;
     //resets building state on base
-    getPlayer(playerTurn).getBaseData()->isNotBuilding();
+    players[playerTurn]->getBaseData()->isNotBuilding();
 }
 
 //Each turn gets money from workers and add to player's wallet.
 void GetGoldFromWorkers()
 {
-    std::list<UnitOnBoard> units = getPlayer(playerTurn).getUnitList();
+    std::list<UnitOnBoard> units = players[playerTurn]->getUnitList();
     if (units.size() > 0)
     {
         int goldFromWorkers = 0;
-        for (std::list<UnitOnBoard>::iterator it= getPlayer(playerTurn).getUnitList().begin(); 
-            it != getPlayer(playerTurn).getUnitList().end(); ++it)
+        for (std::list<UnitOnBoard>::iterator it= players[playerTurn]->getUnitList().begin(); 
+            it != players[playerTurn]->getUnitList().end(); ++it)
         {
             std::string a(boardMap[it->getXCord(), it->getYCord()]);
 
@@ -179,17 +179,17 @@ void GetGoldFromWorkers()
                 goldFromWorkers += 50;
             }
         }
-        getPlayer(playerTurn).setGold(getPlayer(playerTurn).getGold() + goldFromWorkers);
+        players[playerTurn]->setGold(players[playerTurn]->getGold() + goldFromWorkers);
     }
 }
 
 //Resets all action flag
 void ResetAttacksStateFromPlayer()
 {
-    if (getPlayer(playerTurn).getUnitList().size() > 0)
+    if (players[playerTurn]->getUnitList().size() > 0)
     {
-        for(std::list<UnitOnBoard>::iterator it = getPlayer(playerTurn).getUnitList().begin(); 
-            it != getPlayer(playerTurn).getUnitList().end(); it++)
+        for(std::list<UnitOnBoard>::iterator it = players[playerTurn]->getUnitList().begin(); 
+            it != players[playerTurn]->getUnitList().end(); it++)
         {
             it->resetAction();
         }
@@ -207,9 +207,11 @@ void ReadOrderToCommand()
 
 	stream.open(orderFileName);
 
+    bool isCommandCorrect = true;
+
 	if(stream.is_open())
 	{
-		while(std::getline(stream,line))
+		while(std::getline(stream,line) && isCommandCorrect)
 		{
 			std::stringstream ss(line);
 
@@ -217,22 +219,16 @@ void ReadOrderToCommand()
 			{
 				listwords.push_back(line);
 			}
-            //Each line are goint to function checkCommands, where do some actions, if writed properly.
-            checkCommand(listwords);
+            //Each line are going to function checkCommands, where do some actions, if writed properly.
+            isCommandCorrect = checkCommand(listwords);
             listwords.clear();
 		}
     }
 }
 
-//Get actual player
-Player getPlayer(short playerTurn)
-{
-    return *players[playerTurn];
-}
-
 //Commands from orderFile on name defined by users
 //Respectively do action saved in file ('M' - move, 'A' - attack, 'B' - build)
-void checkCommand(std::list<std::string> listwords)
+bool checkCommand(std::list<std::string> listwords)
 {
     auto enemyPlayer = [](int playerTurn) -> int {
         return (playerTurn == 0 ? 1: 0);
@@ -241,7 +237,7 @@ void checkCommand(std::list<std::string> listwords)
     if(listwords.size() < 3 && listwords.size() > 4)
     {
         std::cout << "Unknown command" << std::endl;
-        return;
+        return false;
     } 
 
     //Create a array of string coresponds to index;
@@ -256,83 +252,55 @@ void checkCommand(std::list<std::string> listwords)
     listwords.clear();
     if(words[1].length() == 1)
     {
+        bool isCommandCorrect = false;
         //If move was detected:
         if (words[1].compare("M") == 0)
         {
-            MoveAction(getPlayer(playerTurn), getPlayer(enemyPlayer(playerTurn)), words, boardMap);
+            isCommandCorrect = MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], words, boardMap, boardX, boardY);
         }
 
         //If attack was detected:
         if (words[1].compare("A") == 0)
         {   
-            AttackAction(getPlayer(playerTurn), getPlayer(enemyPlayer(playerTurn)), words);
+            isCommandCorrect = AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], words);
         }
 
-        //If build was detected
+        //If build was detected:
         if (words[1].compare("B") == 0)
         {
-            BuildAction(getPlayer(playerTurn), words);
+            isCommandCorrect = BuildAction(players[playerTurn], words);
         }
         words->clear();
-        return;
+        return isCommandCorrect;
     }
     std::cout << "Unknown command" << std::endl;
+    return false;
 }
 
-//Read map from file to twodimensional array
-void mapRead()
+std::string getDataFromPlayers(Player* actualPlayer, Player* enemy)
 {
-    if(boardMap == NULL)
+    auto getDataFromBase = [](Player* player) -> std::string 
     {
-        boardMap = new char*[5];
-        for(int i=0; i<5; i++)
-        {
-            boardMap[i] = new char[32];
-        }
-    }
-
-    std::string strToRead;
-
-    std::ifstream readFile(mapFileName);
-
-    int row = 0;
-    while(getline(readFile, strToRead))
-    {
-        if(strToRead != "\n")
-        {
-            for(int i=0; i<strToRead.length(); i++)
-            {
-                boardMap[row][i] = strToRead[i];
-            }
-        }
-        row += 1;
-    }
-}
-
-std::string getDataFromPlayers(Player actualPlayer, Player enemy)
-{
-    auto getDataFromBase = [](Player player) -> std::string 
-    {
-        return std::string() + player.getBaseData()->getBaseLetter() + " " 
-        + "B " + std::to_string(player.getBaseData()->getIndex()) 
-        + " " + std::to_string(player.getBaseData()->getXCord())
-        + " " + std::to_string(player.getBaseData()->getYCord())
-        + " " + std::to_string(player.getBaseData()->getHp())
-        + " " + player.getBaseData()->getUnitType() +"\n";
+        return std::string() + player->getBaseData()->getBaseLetter() + " " 
+        + "B " + std::to_string(player->getBaseData()->getIndex()) 
+        + " " + std::to_string(player->getBaseData()->getXCord())
+        + " " + std::to_string(player->getBaseData()->getYCord())
+        + " " + std::to_string(player->getBaseData()->getHp())
+        + " " + player->getBaseData()->getUnitType() +"\n";
     };
 
-    auto getUnitsData = [](Player player) -> std::string 
+    auto getUnitsData = [](Player* player) -> std::string 
     {
-        if (player.getUnitList().size() < 0)
+        if (player->getUnitList().size() <= 0)
         {
             return "";
         }
         //Saves actual player data from list of unit
         std::string unitsData = "";
-        for (std::list<UnitOnBoard>::iterator it= player.getUnitList().begin(); 
-            it != player.getUnitList().end(); ++it)
+        for (std::list<UnitOnBoard>::iterator it= player->getUnitList().begin(); 
+            it != player->getUnitList().end(); ++it)
         {
-            unitsData += std::string() + player.getBaseData()->getBaseLetter() + " "
+            unitsData += std::string() + player->getBaseData()->getBaseLetter() + " "
                 + std::to_string(it->getUnitId()) + " " + std::to_string(it->getXCord()) + " "
                 + std::to_string(it->getYCord()) + " " + std::to_string(it->getHp()) + "\n";
         }
@@ -342,7 +310,7 @@ std::string getDataFromPlayers(Player actualPlayer, Player enemy)
     std::string returnData = "";
 
     //Saves gold from actual player
-    returnData += std::to_string(actualPlayer.getGold()) + "\n";
+    returnData += std::to_string(actualPlayer->getGold()) + "\n";
 
     //Saves data from actual player base
     returnData += getDataFromBase(actualPlayer);
@@ -367,7 +335,7 @@ void saveStatsToFile()
 
     std::ofstream myFile(statusFileName);    
         
-    myFile << getDataFromPlayers(getPlayer(playerTurn), getPlayer(oppositePlayer(playerTurn)));
+    myFile << getDataFromPlayers(players[playerTurn], players[oppositePlayer(playerTurn)]);
 
 
     // Close the file
@@ -393,11 +361,10 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
 
     for(int i=player1; i<playerEnd; i++)
     {
-        playerTurns[i] = 1000;
+        playerTurns[i] = 0;
     }
 
     unitIndex += 1;
-    mapRead();
 
     GameMenu();
 }
@@ -433,7 +400,7 @@ void GameMenu()
         int exceededCount = 0;
         for(int i=0; i<playerEnd; i++)
         {
-            if(playerTurns[i] > 1000)
+            if(playerTurns[i] >= 1000)
             {
                 exceededCount += 1;
             }
@@ -445,7 +412,7 @@ void GameMenu()
         return false;
     };
 
-    while(!turnsExceeded() || (players[player1]->getBaseData()->getHp() > 0 && players[player2]->getBaseData()->getHp() > 0)) 
+    while(!turnsExceeded() && (players[player1]->getBaseData()->getHp() > 0 && players[player2]->getBaseData()->getHp() > 0)) 
     {
         system("clear");
         for(int i=0; i<5; i++)
@@ -461,13 +428,10 @@ void GameMenu()
         
         std::cout << "Round: " << playerTurns[player1] + playerTurns[player2] << std::endl;
         std::cout << "Player: " << playerTurn + 1 << std::endl;
-        std::cout << "Write your command on file " << orderFileName << " and press any key on terminal to continue" << std::endl; 
+        std::cout << "Write your command on file " << orderFileName << ". You have " << timeOut << " seconds." << std::endl;
 
-        time_req = clock();
-
-        while(clock() - time_req < timeOut || std::cin.get()) {}
-        
-        std::cin.get();
+        std::chrono::seconds duration(timeOut);
+        std::this_thread::sleep_for(duration);
 
         ReadOrderToCommand();
 
@@ -531,16 +495,21 @@ void GameMenu()
         }
         myFile.close();
 
-        //Remove all pointers and elements
-        delete mapFileName, statusFileName, orderFileName;
-
-        for(int i=0; i<5; i++)
-        {
-            delete boardMap[i];
-        }
-        delete boardMap;
-
-        delete players;
-        return;
     }
+    //Remove all pointers and elements
+    delete mapFileName, statusFileName, orderFileName;
+
+    for(int i=0; i<5; i++)
+    {
+        delete[] boardMap[i];
+    }
+    delete[] boardMap;
+
+    for(int i=0; i<playerEnd; i++)
+    {
+        delete[] players[i];
+    }
+    delete[] players;
+    delete playerTurns;
+    return;
 }

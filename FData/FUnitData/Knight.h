@@ -24,8 +24,8 @@ class Knight: public AUnit
         int getAttackRange() override{
             return Knight::attackRange;
         }
-        int getBuildTime() override
+        int getCreateTime() override
         {
-            return Knight::buildTime;
+            return Knight::createTime;
         }
 };

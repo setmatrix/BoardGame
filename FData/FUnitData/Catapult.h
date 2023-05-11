@@ -23,8 +23,8 @@ class Catapult: public AUnit
         int getAttackRange() override{
             return Catapult::attackRange;
         }
-        int getBuildTime() override
+        int getCreateTime() override
         {
-            return Catapult::buildTime;
+            return Catapult::createTime;
         }
 };

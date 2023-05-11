@@ -24,8 +24,8 @@ class Worker: public AUnit
         int getAttackRange() override{
             return Worker::attackRange;
         }
-        int getBuildTime() override
+        int getCreateTime() override
         {
-            return Worker::buildTime;
+            return Worker::createTime;
         }
 };

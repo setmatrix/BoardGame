@@ -6,17 +6,17 @@ class AUnit
         int speed;
         int cost;
         int attackRange;
-        int buildTime;
+        int createTime;
 
     public:
-        AUnit(char _unitType, int _basehp, int _speed, int _cost, int _attackRange, int _buildTime)
+        AUnit(char _unitType, int _basehp, int _speed, int _cost, int _attackRange, int _createTime)
         {
             AUnit::unitType = _unitType;
             AUnit::basehp = _basehp;
             AUnit::speed = _speed;
             AUnit::cost = _cost;
             AUnit::attackRange = _attackRange;
-            AUnit::buildTime = _buildTime;
+            AUnit::createTime = _createTime;
         }
         virtual ~AUnit(){}
         virtual char getUnitType()
@@ -27,5 +27,5 @@ class AUnit
         virtual int getSpeed(){return AUnit::speed;}
         virtual int getCost(){return AUnit::cost;}
         virtual int getAttackRange(){return AUnit::attackRange;}
-        virtual int getBuildTime(){return AUnit::buildTime;}
+        virtual int getCreateTime(){return AUnit::createTime;}
 };

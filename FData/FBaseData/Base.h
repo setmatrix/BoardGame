@@ -6,30 +6,31 @@ class Base: private ABase
 {
     private:
         int index;
-        char baseLetter;
+        char baseLetter = 'B';
+        char owner;
         int xCord;
         int yCord;
-        bool isOnBuild;
+        bool isbuilding;
         char unitType;
-        int timeToBuild;
+        int timeToCreateUnit;
     public:
         Base(int _index, char _baseLetter, int _xCord, 
-        int _yCord, bool _isOnBuild = false, char _unitType = '0', int timeToBuild = -1) : ABase(200, 0){
+        int _yCord, bool _isbuilding = false, char _unitType = '0', int _timeToCreateUnit = -1) : ABase(200, 0){
             Base::index = _index;
             Base::baseLetter = _baseLetter;
             Base::xCord = _xCord;
             Base::yCord = _yCord;
             Base::unitType = '0';
 
-            if (_isOnBuild)
+            if (_isbuilding)
             {
-                Base::isOnBuild = true;               
+                Base::isbuilding = true;               
             }
             else {
-                Base::isOnBuild = false;
+                Base::isbuilding = false;
             }
             Base::unitType = unitType;
-            Base::timeToBuild = timeToBuild; 
+            Base::timeToCreateUnit = _timeToCreateUnit; 
         }
 
         ~Base() override {}
@@ -61,36 +62,36 @@ class Base: private ABase
 
         int getYCord() {return Base::yCord;}
 
-        bool getIsOnBuild() {return Base::isOnBuild;}
+        bool isBuilding() {return Base::isbuilding;}
 
-        void setIsOnBuild(bool _onBuild) {Base::isOnBuild = _onBuild;}
+        void Building(bool _isbuilding) {Base::isbuilding = _isbuilding;}
 
         char getUnitType() {return Base::unitType;}
 
-        int getTimeToBuild() {return Base::timeToBuild;}
+        int getTimeToCreate() {return Base::timeToCreateUnit;}
 
-        void setTimeToBuild(int _timeToBuild){Base::timeToBuild = _timeToBuild;}
+        void setTimeToCreateUnit(int _timeToCreateUnit){Base::timeToCreateUnit = _timeToCreateUnit;}
 
         //Method to add Unit to build and changes state for base
-        void addUnitToBuild(AUnit _unit)
+        void addUnitToCreate(AUnit _unit)
         {
-            if (!getIsOnBuild())
+            if (!isBuilding())
             {
-                Base::isOnBuild = true;
+                Base::isbuilding = true;
                 Base::unitType = _unit.getUnitType();
-                Base::timeToBuild = _unit.getBuildTime();
+                Base::timeToCreateUnit = _unit.getCreateTime();
             }
         }
 
         //Resets base state
         void isNotBuilding()
         {
-            if (Base::getTimeToBuild() > 0)
+            if (Base::getTimeToCreate() > 0)
             {
                 return;
             }
-            Base::isOnBuild = false;
+            Base::isbuilding = false;
             Base::unitType = '0';
-            Base::timeToBuild = -1; 
+            Base::timeToCreateUnit = -1; 
         }
 };

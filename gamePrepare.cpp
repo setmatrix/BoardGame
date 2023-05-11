@@ -10,7 +10,7 @@ void createOrderFile(const char* orderName);
 //Function to create to file with map
 bool prepareMapFromFile(const char* mapName)
 {
-//Open and take data from file
+    //Open and take data from file
 
     std::ifstream boardLoading(mapName);
     std::string row;
