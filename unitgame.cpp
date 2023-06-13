@@ -168,17 +168,15 @@ void GetGoldFromWorkers()
     std::list<UnitOnBoard> units = players[playerTurn]->getUnitList();
     if (units.size() > 0)
     {
-        int goldFromWorkers = 0;
         for(UnitOnBoard &it : players[playerTurn]->getUnitList())
         {
             std::string a(boardMap[it.getXCord(), it.getYCord()]);
 
             if (a == "6")
             {
-                goldFromWorkers += 50;
+                players[playerTurn]->AddMoneyFromWorker();
             }
         }
-        players[playerTurn]->setGold(players[playerTurn]->getGold() + goldFromWorkers);
     }
 }
 

@@ -2,6 +2,7 @@
 #include <cassert>
 #include <string.h>
 #include <iterator>
+#include <memory>
 
 #include "unitgame.cpp"
 
@@ -9,21 +10,19 @@
 /* CHECK BASE STATE (CREATED/INBUILD/WAITING*/
 void createDeleteDefaultBaseObject()
 {
-    Base *base = new Base(0, 'T', 0, 0);
+    std::unique_ptr<Base> base(new Base(0, 'T', 0, 0), std::default_delete<Base>());
 
     std::string getDataFromBase = std::string() + std::to_string(base->getIndex()) + " " +
         base->getOwner() + " " + std::to_string(base->getXCord()) + " " + std::to_string(base->getYCord())
         + " " + std::to_string(base->isBuilding()) + " " + base->getUnitType() + " " + std::to_string(base->getTimeToCreate());
     assert(getDataFromBase.compare("0 T 0 0 false 0 -1"));
-    
-    delete base;
 }
 
 void checkBuildStateBase()
 {
-    Base *base = new Base(0, 'T', 0, 0);
+    std::unique_ptr<Base> base(new Base(0, 'T', 0, 0), std::default_delete<Base>());
 
-    Archer* a = new Archer();
+    std::unique_ptr<Archer> a(new Archer());
 
     base->addUnitToCreate(*a);
 
@@ -34,15 +33,13 @@ void checkBuildStateBase()
     std::string getDataFromArcher = std::string() + a->getUnitType() + " " + std::to_string(a->getCreateTime());
 
     assert(getDataFromBase == getDataFromArcher);
-    
-    delete base;
-    delete a;
 }
 
 void createUnit()
 {
-    Base *base = new Base(0, 'T', 0, 0);
-    Archer* a = new Archer();
+    std::unique_ptr<Base> base(new Base(0, 'T', 0, 0), std::default_delete<Base>());
+    std::unique_ptr<Archer> a(new Archer());
+
     base->addUnitToCreate(*a);
 
     for(int i=0; i < a->getCreateTime(); i++)
@@ -54,24 +51,19 @@ void createUnit()
     std::cout << base->getTimeToCreate() << std::endl;
     
     assert(base->isBuilding() == 0);
-
-    delete base;
-    delete a;
 }
 
 void createDeletePlayer()
 {
-    Player* player = new Player(0, 'T', 0, 0);
-
-    delete player;
+    std::unique_ptr<Player> player(new Player(0, 'T', 0, 0));
 }
 
 /* CHECK PLAYER */
 void addUnitToList()
 {
-    Player* player = new Player(0, 'T', 0, 0);
-    Knight* k = new Knight();
-    UnitOnBoard* u = new UnitOnBoard(
+    std::unique_ptr<Player> player(new Player(0, 'T', 0, 0));
+    std::unique_ptr<Knight> k(new Knight());
+    std::unique_ptr<UnitOnBoard> u(new UnitOnBoard(
         player->getBaseData()->getUnitType(), 
         1, 
         player->getBaseData()->getXCord(), 
@@ -79,7 +71,7 @@ void addUnitToList()
         k->getHp(),
         k->getSpeed(),
         k->getAttackRange(),
-    player->getBaseData()->getOwner());
+        player->getBaseData()->getOwner()));
     player->addUnit(*u);
 
     std::list<UnitOnBoard> list = player->getUnitList();
@@ -94,17 +86,14 @@ void addUnitToList()
     
     assert(unitFromListData.compare(unitCreatedData));
 
-    delete k;
     list.clear();
-    delete u;
-    delete player;
 }
 
 void deleteUnitFromListPlayer()
 {
-    Player* player = new Player(0, 'T', 0, 0);
-    Knight* k = new Knight();
-    UnitOnBoard* u = new UnitOnBoard(
+    std::unique_ptr<Player> player(new Player(0, 'T', 0, 0));
+    std::unique_ptr<Knight> k(new Knight());
+    std::unique_ptr<UnitOnBoard> u(new UnitOnBoard(
         player->getBaseData()->getUnitType(), 
         1, 
         player->getBaseData()->getXCord(), 
@@ -112,14 +101,10 @@ void deleteUnitFromListPlayer()
         k->getHp(),
         k->getSpeed(),
         k->getAttackRange(),
-    player->getBaseData()->getOwner());
+        player->getBaseData()->getOwner()));
     player->addUnit(*u);
 
     player->deleteUnit(*u);
 
     assert(player->getUnitList().size() == 0);
-
-    delete k;
-    delete u;
-    delete player;
 }

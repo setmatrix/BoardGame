@@ -8,6 +8,7 @@ class Player
         int gold;
         std::list<UnitOnBoard> units;
         Base* base;
+        int goldFromWorker = 50;
 
     public:
         Player()
@@ -52,5 +53,10 @@ class Player
                     break;
                 }
             }
+        }
+
+        void AddMoneyFromWorker()
+        {
+            Player::gold += Player::goldFromWorker;
         }
 };
