@@ -17,7 +17,7 @@ bool IsEnemyUnitOnBoard(Player* enemyPlayer, int x, int y)
     return false;
 }
 
-bool MoveAction(Player* actualPlayer, Player* enemyPlayer, std::string *words, char** board, int boardX, int boardY)
+bool MoveAction(Player* actualPlayer, Player* enemyPlayer, std::vector<std::string> words, char** board, int boardX, int boardY)
 {
     if (actualPlayer->getUnitList().size() <= 0)
     {

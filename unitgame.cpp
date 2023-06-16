@@ -2,10 +2,12 @@
 #include <string>
 #include <fstream>
 #include <list>
+#include <vector>
 #include <cstring>
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include <memory>
 
 #include "Player/Player.h"
 #include "FUnitOnBoard/AttackOnBoard.h"
@@ -31,7 +33,7 @@ const char* statusFileName;
 //Order file name
 const char* orderFileName;
 
-//Twodimensional map, readed from map file
+//Twodimensional map, readed from board file
 char** boardMap;
 
 int boardX = 0;
@@ -58,15 +60,15 @@ enum playerNames{player1, player2, playerEnd};
 Player** players;
 
 //PlayerTurns
-int* playerTurns;
+std::shared_ptr<int[]> playerTurns;
 
 //Predefined functions
 void ResetAttacksStateFromPlayer();
 void GetGoldFromWorkers();
 void checkBuild();
+bool checkCommand(std::vector<std::string> listwords);
 void ReadOrderToCommand();
 Player getPlayer(short playerTurn);
-bool checkCommand(std::list<std::string> listwords);
 void mapRead();
 void saveStatsToFile();
 void GameMenu();
@@ -90,7 +92,7 @@ void checkBuild()
 
     auto createUnit = [](AUnit unit)
     {
-        UnitOnBoard* u = new UnitOnBoard(
+        std::unique_ptr<UnitOnBoard> u(new UnitOnBoard(
             players[playerTurn]->getBaseData()->getUnitType(), 
             unitIndex, 
             players[playerTurn]->getBaseData()->getXCord(), 
@@ -98,60 +100,52 @@ void checkBuild()
             unit.getHp(),
             unit.getSpeed(),
             unit.getAttackRange(),
-            players[playerTurn]->getBaseData()->getOwner());
+            players[playerTurn]->getBaseData()->getOwner()));
 
         players[playerTurn]->addUnit(*u);
-        delete u;
     };
     switch(players[playerTurn]->getBaseData()->getUnitType())
     {
         case 'K':
         {
-            Knight* k = new Knight();
+            std::unique_ptr<Knight> k(new Knight());
             createUnit((AUnit) *k);
-            delete k;
             break;
         }
         case 'S':
         {
-            Swordsman* s = new Swordsman();
+            std::unique_ptr<Swordsman> s(new Swordsman());
             createUnit((AUnit) *s);
-            delete s;
             break;
         }                       
         case 'A':
         {
-            Archer* a = new Archer();
+            std::unique_ptr<Archer> a(new Archer());
             createUnit((AUnit) *a);
-            delete a;
             break;
         }
         case 'P':
         {
-            Pikeman* p = new Pikeman();
+            std::unique_ptr<Pikeman> p(new Pikeman());
             createUnit((AUnit) *p);
-            delete p;
             break;
         }
         case 'C':
         {
-            Catapult* c = new Catapult();
+            std::unique_ptr<Catapult> c(new Catapult());
             createUnit((AUnit) *c);
-            delete c;
             break;
         }
         case 'R':
         {
-            Ram* r = new Ram();
+            std::unique_ptr<Ram> r(new Ram());
             createUnit((AUnit) *r);
-            delete r;
             break;
         }
         case 'W':
         {
-            Worker* w = new Worker();
+            std::unique_ptr<Worker> w(new Worker());
             createUnit((AUnit) *w);
-            delete w;
             break;
         }
         default:
@@ -197,7 +191,7 @@ void ReadOrderToCommand()
 {
     std::string line;
 
-	std::list<std::string> listwords;
+	std::vector<std::string> listwords;
 
 	std::ifstream stream;
 
@@ -209,6 +203,7 @@ void ReadOrderToCommand()
 	{
 		while(std::getline(stream,line) && isCommandCorrect)
 		{
+            //Each value are separated from white space and put to list.
 			std::stringstream ss(line);
 
 			while (std::getline (ss,line,' '))
@@ -224,7 +219,7 @@ void ReadOrderToCommand()
 
 //Commands from orderFile on name defined by users
 //Respectively do action saved in file ('M' - move, 'A' - attack, 'B' - build)
-bool checkCommand(std::list<std::string> listwords)
+bool checkCommand(std::vector<std::string> listwords)
 {
     auto enemyPlayer = [](int playerTurn) -> int {
         return (playerTurn == 0 ? 1: 0);
@@ -236,39 +231,28 @@ bool checkCommand(std::list<std::string> listwords)
         return false;
     } 
 
-    //Create a array of string coresponds to index;
-    std::string *words;
-    words = new std::string[listwords.size()];
-    int local_index = 0;
-    for (auto i = listwords.begin(); i != listwords.end(); i++)
-    {
-        words[local_index] = *i;
-        local_index += 1;
-    }
-    listwords.clear();
-
-    if(words[1].length() == 1)
+    if(listwords[1].length() == 1)
     {
         bool isCommandCorrect = false;
 
         //If move was detected:
-        if (words[1].compare("M") == 0)
+        if (listwords[1].compare("M") == 0)
         {
-            isCommandCorrect = MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], words, boardMap, boardX, boardY);
+            isCommandCorrect = MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], listwords, boardMap, boardX, boardY);
         }
 
         //If attack was detected:
-        if (words[1].compare("A") == 0)
+        if (listwords[1].compare("A") == 0)
         {   
-            isCommandCorrect = AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], words);
+            isCommandCorrect = AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], listwords);
         }
 
         //If build was detected:
-        if (words[1].compare("B") == 0)
+        if (listwords[1].compare("B") == 0)
         {
-            isCommandCorrect = BuildAction(players[playerTurn], words);
+            isCommandCorrect = BuildAction(players[playerTurn], listwords);
         }
-        words->clear();
+        listwords.clear();
         return isCommandCorrect;
     }
     std::cout << "Unknown command" << std::endl;
@@ -354,7 +338,7 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
     unitIndex += 1;
     players[player2] = new Player(unitIndex, 'E', player2X, player2Y);
 
-    playerTurns = new int[playerEnd - 1];
+    playerTurns.reset(new int[playerEnd - 1], std::default_delete<int[]>());
 
     for(int i=player1; i<playerEnd; i++)
     {
@@ -411,7 +395,7 @@ void GameMenu()
     while(!turnsExceeded() && (players[player1]->getBaseData()->getHp() > 0 && players[player2]->getBaseData()->getHp() > 0)) 
     {
         system("clear");
-        for(int i=0; i<5; i++)
+        for(int i=0; i<boardX; i++)
         {
             std::cout << boardMap[i] << std::endl;
         }
@@ -487,7 +471,6 @@ void GameMenu()
         for(int i=0; i<playerEnd; i++)
         {
             myFile << printResults(players[i]);
-            delete players[i];
         }
         myFile.close();
 
@@ -495,7 +478,7 @@ void GameMenu()
     //Remove all pointers and elements
     delete mapFileName, statusFileName, orderFileName;
 
-    for(int i=0; i<5; i++)
+    for(int i=0; i<boardX; i++)
     {
         delete[] boardMap[i];
     }
@@ -506,6 +489,5 @@ void GameMenu()
         delete[] players[i];
     }
     delete[] players;
-    delete playerTurns;
     return;
 }

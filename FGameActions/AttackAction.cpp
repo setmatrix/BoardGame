@@ -44,7 +44,7 @@ bool AttackBase(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard
     return false;
 }
 
-bool AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit, std::string *words)
+bool AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit, std::vector<std::string> words)
 {
     if (enemyPlayer->getUnitList().size() <= 0)
     {
@@ -90,7 +90,7 @@ bool AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard
     return false;
 }
 
-bool AttackAction(Player *actualPlayer, Player *enemyPlayer, std::string *words)
+bool AttackAction(Player *actualPlayer, Player *enemyPlayer, std::vector<std::string> words)
 {
     if (actualPlayer->getUnitList().size() <= 0)
     {
