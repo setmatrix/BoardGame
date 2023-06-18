@@ -15,77 +15,75 @@ int changeActionPoints(UnitOnBoard unit, int x, int y)
     return availablePoints - usingActionPoints;
 }
 
-bool AttackBase(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit)
+bool AttackBase(Player *enemyPlayer, UnitOnBoard playerUnit)
 {
-    // Check, if the base player wants to attack is enemy
-    if (actualPlayer->getBaseData()->getOwner() != playerUnit->getOwner())
+    // Check, if the base is on range
+    if (rangeCalculate(playerUnit.getAttackRange(), playerUnit.getXCord(), playerUnit.getYCord(),
+                        enemyPlayer->getBaseData()->getXCord(),
+                       enemyPlayer->getBaseData()->getYCord()))
     {
-        // Check, if the base is on range
-        if (rangeCalculate(playerUnit->getAttackRange(), playerUnit->getXCord(), playerUnit->getYCord(),
-                           enemyPlayer->getBaseData()->getXCord(),
-                           enemyPlayer->getBaseData()->getYCord()))
-        {
-            int actualBaseHp = enemyPlayer->getBaseData()->getHp();
-            enemyPlayer->getBaseData()->setHp(
-                actualBaseHp - AttackOnEnemy(playerUnit->getUnitType(), 'B'));
-        }
-        else
-        {
-            std::cout << "Enemy base is out of range\n";
-            return false;
-        }
+        int actualBaseHp = enemyPlayer->getBaseData()->getHp();
+        int unitOnDamage = AttackOnEnemy(playerUnit.getUnitType(), 'B');
+        
+        enemyPlayer->getBaseData()->setHp(actualBaseHp - unitOnDamage);
+        playerUnit.setAttacking(true);
         return true;
     }
     else
     {
-        std::cout << "Cannot attack your own base\n";
-        return false;
+        throw std::string("Enemy base is out of range");
     }
     return false;
 }
 
-bool AttackUnit(Player *actualPlayer, Player *enemyPlayer, std::list<UnitOnBoard>::iterator playerUnit, std::vector<std::string> words)
+bool AttackUnit(Player *enemyPlayer, UnitOnBoard playerUnit, std::vector<std::string> words)
 {
     if (enemyPlayer->getUnitList().size() <= 0)
     {
-        std::cout << "Your enemy doesn't have units to attack!\n";
-        return false;
+        throw std::string("Your enemy doesn't have units to attack!");
     }
-    // Attack on enemy
 
+    // Attack on enemy
     std::list<UnitOnBoard>::iterator enemyUnit = enemyPlayer->getUnitList().begin();
+
+    int actualIndex = 0;
+    int maxIndex = enemyPlayer->getUnitList().size();
 
     while (enemyUnit != enemyPlayer->getUnitList().end())
     {
-        // Like on previous comentary, get enemy unit id and check, is equal to data from file
+        if(actualIndex >= maxIndex)
+        {
+            break;
+        }
+        // Get enemy unit id and check, is equal to data from file
         if (enemyUnit->getUnitId() == stoi(words[2]))
         {
             // Check, if is on range
-            if (!rangeCalculate(playerUnit->getAttackRange(), playerUnit->getXCord(), playerUnit->getYCord(),
+            if (!rangeCalculate(playerUnit.getAttackRange(), playerUnit.getXCord(), playerUnit.getYCord(),
                                 enemyUnit->getXCord(), enemyUnit->getYCord()))
             {
-                std::cout << "Your enemy is out of range\n";
-                return false;
+                throw std::string("Your enemy is out of range!");
             }
             // Get hp from unit and attackDamage from static method
             int enemyHp = enemyUnit->getHp();
-            int attackDamage = AttackOnEnemy(playerUnit->getUnitType(), enemyUnit->getUnitType());
+            int attackDamage = AttackOnEnemy(playerUnit.getUnitType(), enemyUnit->getUnitType());
 
             // Then set hp, substracting from damage.
             enemyUnit->setHp(enemyHp - attackDamage);
-            playerUnit->setActionPoints(playerUnit->getActionPoints() - 1);
+            playerUnit.setActionPoints(playerUnit.getActionPoints() - 1);
 
             // Set flag to true
-            playerUnit->setAttacking(true);
+            playerUnit.setAttacking(true);
 
             // If unit has 0 or less hp
             if (enemyUnit->getHp() <= 0)
             {
                 // Delete from list of units
-                actualPlayer->deleteUnit(*enemyUnit);
+                enemyPlayer->deleteUnit(*enemyUnit);
             }
             return true;
         }
+        actualIndex += 1;
     }
     return false;
 }
@@ -94,8 +92,7 @@ bool AttackAction(Player *actualPlayer, Player *enemyPlayer, std::vector<std::st
 {
     if (actualPlayer->getUnitList().size() <= 0)
     {
-        std::cout << "You can't attack if you don't have an unit.\n";
-        return false;
+        throw std::string("You can't attack if you don't have an unit.");
     }
 
     std::list<UnitOnBoard>::iterator playerUnit = actualPlayer->getUnitList().begin();
@@ -106,20 +103,19 @@ bool AttackAction(Player *actualPlayer, Player *enemyPlayer, std::vector<std::st
         if (playerUnit->getUnitId() == stoi(words[0]))
         {
             // Then check, if unit was Attacking
-            if (!playerUnit->getAttack())
+            if (playerUnit->getAttack())
             {
-                std::cout << "Your unit already attacked\n";
-                return false;
+                throw std::string("Your unit already attacked.");
             }
-            if ((stoi(words[2]) == actualPlayer->getBaseData()->getXCord() && stoi(words[3]) == actualPlayer->getBaseData()->getYCord()) || (stoi(words[2]) == enemyPlayer->getBaseData()->getXCord() && stoi(words[3]) == enemyPlayer->getBaseData()->getYCord()))
+            if (stoi(words[2]) == enemyPlayer->getBaseData()->getIndex())
             {
                 // Attack on base
-                return AttackBase(actualPlayer, enemyPlayer, playerUnit);
+                return AttackBase(enemyPlayer, *playerUnit);
             }
             else
             {
                 // Attack on unit
-                return AttackUnit(actualPlayer, enemyPlayer, playerUnit, words);
+                return AttackUnit(enemyPlayer, *playerUnit, words);
             }
             break;
         }

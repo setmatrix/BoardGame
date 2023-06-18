@@ -21,23 +21,27 @@ bool MoveAction(Player* actualPlayer, Player* enemyPlayer, std::vector<std::stri
 {
     if (actualPlayer->getUnitList().size() <= 0)
     {
-        std::cout << "You haven't an unit to play\n";
-        return false;
+        throw std::string("You don't have an unit to play");
     }
+
+    int actualIndex = 0;
+    int max = actualPlayer->getUnitList().size();
 
     std::list<UnitOnBoard>::iterator it = actualPlayer->getUnitList().begin();
 
     while (it != actualPlayer->getUnitList().end())
     {
+        if(actualIndex >= max)
+        {
+            return false;
+        }
         //Check if unit Id is equal to Id from file.
         if (it->getUnitId() == stoi(words[0]))
         {
-            UnitOnBoard& s(*it);
             //Then check, if Cordinates are on board
             if (stoi(words[2]) < 0 || stoi(words[2]) > boardX || stoi(words[3]) < 0 || stoi(words[3]) > boardY)
             {
-                std::cout << "Your coordication are outside from board\n";
-                return false;
+                throw std::string("Your coordication are outside from board");
             }
             
             std::string field(board[(stoi(words[2]), stoi(words[3]))]);
@@ -47,28 +51,46 @@ bool MoveAction(Player* actualPlayer, Player* enemyPlayer, std::vector<std::stri
             //Lastly, check if Coordinates from file are pointing to road, base, or cave and are on range to unit.
             if (!field.compare("0") && !field.compare("6") && !field.compare(getPlayerBase))
             {
-                std::cout << "This place is an obstacle or enemy player's base\n";
-                return false;
-            }
-
-            if (IsEnemyUnitOnBoard(enemyPlayer, stoi(words[2]), stoi(words[3])))
-            {
-                std::cout << "Enemy on this coordination exists\n";
-                return false;
+                throw std::string("This place is an obstacle or enemy player's base");
             }
 
             if(!rangeCalculate(it->getActionPoints(), it->getXCord(), it->getYCord(), stoi(words[2]), stoi(words[3])))
             {
-                std::cout << "Not enough Action Points\n";
-                return false;
+                throw std::string("Not enough Action Points");
             }
 
+            if (IsEnemyUnitOnBoard(enemyPlayer, stoi(words[2]), stoi(words[3])))
+            {
+                throw std::string("Enemy on this coordination exists");
+            }
+            break;
+        }
+        actualIndex += 1;
+    }
+
+    //For the problem with overriding memory of enemyPlayer Pointer,
+    //I need to create another while function to update an unit
+    
+    actualIndex = 0;
+    it = actualPlayer->getUnitList().begin();
+    while (it != actualPlayer->getUnitList().end())
+    {
+        if(actualIndex >= max)
+        {
+            return false;
+        }
+        if (it->getUnitId() == stoi(words[0]))
+        {
             //Decreases action points from move and set new Coorinates to unit.
-            s.setActionPoints(changeActionPoints(*it, stoi(words[2]), stoi(words[3])));
-            s.setXCord(stoi(words[2]));
-            s.setYCord(stoi(words[3]));
+            UnitOnBoard updatedUnit(it->getUnitType(), it->getUnitId(), stoi(words[2]), stoi(words[3]), it->getHp(), it->getSpeed(), it->getAttackRange(), it->getOwner());
+            updatedUnit.setActionPoints(changeActionPoints(*it, stoi(words[2]), stoi(words[3])));
+            actualPlayer->deleteUnit(*it);
+            actualPlayer->addUnit(updatedUnit);
             return true;
         }
+        actualIndex += 1;
     }
+
+    throw std::string("List of units are empty");
     return false;
 }

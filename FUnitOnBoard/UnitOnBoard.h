@@ -23,7 +23,7 @@ class UnitOnBoard
             UnitOnBoard::yCord = _yCord;
             UnitOnBoard::hp = _hp;
             UnitOnBoard::speed = _speed;
-            UnitOnBoard::actionPoints = speed;
+            UnitOnBoard::actionPoints = _speed;
             UnitOnBoard::attackRange = _attackRange;
             UnitOnBoard::owner = _owner;
         }

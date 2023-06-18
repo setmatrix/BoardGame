@@ -161,40 +161,47 @@ void createOrderFile(const char* orderName)
 //Function to run preparations with arguments or not, if not writed in terminal.
 void prepare(int argc, char **argv)
 {
-    switch(argc)
+    try
     {
-        case 1:
-        case 2:
-        case 3:
+        switch(argc)
         {
-            std::cout << "Not enough parameters: " << argc << std::endl;
-            return;
-        }
-        case 4:
-        {
-            const char* mapName = argv[1];
-            const char *statusName = argv[2];
-            const char *orderName = argv[3];
-            gamePrepare(mapName, statusName, orderName);
-            break;
-        }
-        case 5:
-        {
-            const char *mapName = argv[1];
-            const char *statusName = argv[2];
-            char *orderName = argv[3];
-            const int timeOut = atoi(argv[4]);
-            gamePrepare(mapName, statusName, orderName, timeOut);
-            break;
-        }
-        default:
-        {
-            if (argc > 5)
+            case 1:
+            case 2:
+            case 3:
             {
-                std::cout << "Too much parameters: " << argc << std::endl;
+                throw std::string("Not enough parameters: " + std::to_string(argc));
             }
-            break;
+            case 4:
+            {
+                const char* mapName = argv[1];
+                const char *statusName = argv[2];
+                const char *orderName = argv[3];
+                gamePrepare(mapName, statusName, orderName);
+                break;
+            }
+            case 5:
+            {
+                const char *mapName = argv[1];
+                const char *statusName = argv[2];
+                char *orderName = argv[3];
+                const int timeOut = atoi(argv[4]);
+                gamePrepare(mapName, statusName, orderName, timeOut);
+                break;
+            }
+            default:
+            {
+                if (argc > 5)
+                {
+                    throw std::string("Too much parameters: " + std::to_string(argc));
+                }
+                break;
+            }
         }
+    }
+    catch(std::string error)
+    {
+        std::cout << error << std::endl;
+        return;
     }
 }
 

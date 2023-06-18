@@ -149,7 +149,7 @@ void checkBuild()
             break;
         }
         default:
-            return;
+            break;
         }
     unitIndex += 1;
     //resets building state on base
@@ -162,9 +162,10 @@ void GetGoldFromWorkers()
     std::list<UnitOnBoard> units = players[playerTurn]->getUnitList();
     if (units.size() > 0)
     {
-        for(UnitOnBoard &it : players[playerTurn]->getUnitList())
+        for(UnitOnBoard it : players[playerTurn]->getUnitList())
         {
-            std::string a(boardMap[it.getXCord(), it.getYCord()]);
+            char point = boardMap[it.getXCord()][it.getYCord()];
+            std::string a(std::string() + point);
 
             if (a == "6")
             {
@@ -181,7 +182,9 @@ void ResetAttacksStateFromPlayer()
     {
         for(UnitOnBoard &it : players[playerTurn]->getUnitList())
         {
-            it.resetAction();
+            UnitOnBoard u(it.getUnitType(), it.getUnitId(), it.getXCord(), it.getYCord(), it.getHp(), it.getSpeed(), it.getAttackRange(), it.getOwner());
+            players[playerTurn]->deleteUnit(it);
+            players[playerTurn]->addUnit(u);
         }
     }
 }
@@ -201,19 +204,26 @@ void ReadOrderToCommand()
 
 	if(stream.is_open())
 	{
-		while(std::getline(stream,line) && isCommandCorrect)
-		{
-            //Each value are separated from white space and put to list.
-			std::stringstream ss(line);
+        try
+        {    
+            while(std::getline(stream,line) && isCommandCorrect)
+            {
+                //Each value are separated from white space and put to list.
+                std::stringstream ss(line);
 
-			while (std::getline (ss,line,' '))
-			{
-				listwords.push_back(line);
-			}
-            //Each line are going to function checkCommands, where do some actions, if writed properly.
-            isCommandCorrect = checkCommand(listwords);
-            listwords.clear();
-		}
+                while (std::getline (ss,line,' '))
+                {
+                    listwords.push_back(line);
+                }
+                //Each line are going to function checkCommands, where do some actions, if writed properly.
+                isCommandCorrect = checkCommand(listwords);
+                listwords.clear();
+            }
+        }
+        catch(std::string error)
+        {
+            std::cout << error << std::endl;
+        }
     }
 }
 
@@ -227,35 +237,40 @@ bool checkCommand(std::vector<std::string> listwords)
     //First, check if is more or less than 3 or 4 elements
     if(listwords.size() < 3 && listwords.size() > 4)
     {
-        std::cout << "Unknown command" << std::endl;
-        return false;
+        throw std::string("Unknown command");
     } 
 
     if(listwords[1].length() == 1)
     {
         bool isCommandCorrect = false;
 
-        //If move was detected:
-        if (listwords[1].compare("M") == 0)
+        if(listwords[1].compare("M") == 0 || listwords[1].compare("A") == 0 || listwords[1].compare("B") == 0)
         {
-            isCommandCorrect = MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], listwords, boardMap, boardX, boardY);
-        }
+            //If move was detected:
+            if (listwords[1].compare("M") == 0)
+            {
+                isCommandCorrect = MoveAction(players[playerTurn], players[enemyPlayer(playerTurn)], listwords, boardMap, boardX, boardY);
+            }
 
-        //If attack was detected:
-        if (listwords[1].compare("A") == 0)
-        {   
-            isCommandCorrect = AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], listwords);
-        }
+            //If attack was detected:
+            if (listwords[1].compare("A") == 0)
+            {   
+                isCommandCorrect = AttackAction(players[playerTurn], players[enemyPlayer(playerTurn)], listwords);
+            }
 
-        //If build was detected:
-        if (listwords[1].compare("B") == 0)
+            //If build was detected:
+            if (listwords[1].compare("B") == 0)
+            {
+                isCommandCorrect = BuildAction(players[playerTurn], listwords);
+            }
+            listwords.clear();
+        }
+        else 
         {
-            isCommandCorrect = BuildAction(players[playerTurn], listwords);
+            throw std::string("Unknown Action");
         }
-        listwords.clear();
         return isCommandCorrect;
     }
-    std::cout << "Unknown command" << std::endl;
     return false;
 }
 
@@ -347,6 +362,11 @@ void playPrepare(const char* mapName, const char* statusName, const char* orderN
 
     unitIndex += 1;
 
+    for(int i=0; i<boardX; i++)
+    {
+        std::cout << boardMap[i] << std::endl;
+    }
+
     GameMenu();
 }
 
@@ -394,21 +414,19 @@ void GameMenu()
 
     while(!turnsExceeded() && (players[player1]->getBaseData()->getHp() > 0 && players[player2]->getBaseData()->getHp() > 0)) 
     {
-        system("clear");
-        for(int i=0; i<boardX; i++)
-        {
-            std::cout << boardMap[i] << std::endl;
-        }
 
         char orderCommand[100];
 
         GetGoldFromWorkers();
 
         saveStatsToFile();
+
+        std::ofstream myFile(orderFileName);
+        myFile.close(); 
         
         std::cout << "Round: " << playerTurns[player1] + playerTurns[player2] << std::endl;
         std::cout << "Player: " << playerTurn + 1 << std::endl;
-        std::cout << "Write your command on file " << orderFileName << ". You have " << timeOut << " seconds." << std::endl;
+        std::cout << "Write your commands on file " << orderFileName << ". You have " << timeOut << " seconds." << std::endl;
 
         std::chrono::seconds duration(timeOut);
         std::this_thread::sleep_for(duration);

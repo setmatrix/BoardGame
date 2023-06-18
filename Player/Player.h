@@ -1,6 +1,5 @@
 #include "../FData/FBaseData/Base.h"
 #include "../FUnitOnBoard/UnitOnBoard.h"
-#include <list>
 #include <memory>
 
 class Player
@@ -21,8 +20,11 @@ class Player
         {
             base.reset(new Base(_index, _baseLetter, _xCord, _yCord));
         }
+        
         int getGold() {return Player::gold;}
+
         void setGold(int _gold) {Player::gold = _gold;}
+
         ~Player(){
             units.clear();
         }
@@ -58,5 +60,10 @@ class Player
         void AddMoneyFromWorker()
         {
             Player::gold += Player::goldFromWorker;
+        }
+
+        void BaseReset(Base _base)
+        {
+            base.reset(new Base(_base));
         }
 };
