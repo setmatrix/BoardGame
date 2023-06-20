@@ -23,20 +23,20 @@ class UnitOnBoard
             UnitOnBoard::yCord = _yCord;
             UnitOnBoard::hp = _hp;
             UnitOnBoard::speed = _speed;
-            UnitOnBoard::actionPoints = _speed;
+            UnitOnBoard::actionPoints = speed;
             UnitOnBoard::attackRange = _attackRange;
             UnitOnBoard::owner = _owner;
         }
 
-        char getUnitType()
+        char& getUnitType()
         {
             return UnitOnBoard::unitType;
         }
-        int getUnitId()
+        int& getUnitId()
         {
             return UnitOnBoard::unitId;
         }
-        int getXCord()
+        int& getXCord()
         {
             return UnitOnBoard::xCord;
         }
@@ -44,7 +44,7 @@ class UnitOnBoard
         {
             UnitOnBoard::xCord = _xCord;
         }
-        int getYCord()
+        int& getYCord()
         {
             return UnitOnBoard::yCord;
         }
@@ -52,7 +52,7 @@ class UnitOnBoard
         {
             UnitOnBoard::yCord = _yCord;
         }
-        int getHp()
+        int& getHp()
         {
             return UnitOnBoard::hp;
         }
@@ -64,16 +64,16 @@ class UnitOnBoard
         {
             UnitOnBoard::attacked = _attacked;
         }
-        bool getAttack()
+        bool& getAttack()
         {
             return UnitOnBoard::attacked;
         }
-        int getSpeed()
+        int& getSpeed()
         {
             return UnitOnBoard::speed;
         }
 
-        int getActionPoints()
+        int& getActionPoints()
         {
             return UnitOnBoard::actionPoints;
         }
@@ -83,12 +83,12 @@ class UnitOnBoard
             UnitOnBoard::actionPoints = _actionPoints;
         }
 
-        int getAttackRange()
+        int& getAttackRange()
         {
             return UnitOnBoard::attackRange;
         }
 
-        char getOwner()
+        char& getOwner()
         {
             return UnitOnBoard::owner;
         }

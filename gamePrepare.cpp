@@ -140,17 +140,14 @@ bool prepareMapFromFile(const char* mapName)
             throw errorMessage;
         }
     }
-    catch(std::string error)
+    catch(std::string errorMessage)
     {
-            std::cout << error;
+            std::cout << errorMessage;
             return false;
     }
-    
-    //Open and take data from file
-
-    
 }
 
+//Open and take data from file
 void createOrderFile(const char* orderName)
 {
     std::ofstream myFile(orderName);
@@ -198,9 +195,9 @@ void prepare(int argc, char **argv)
             }
         }
     }
-    catch(std::string error)
+    catch(std::string errorMessage)
     {
-        std::cout << error << std::endl;
+        std::cout << errorMessage << std::endl;
         return;
     }
 }

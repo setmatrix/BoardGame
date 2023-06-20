@@ -15,7 +15,7 @@ int changeActionPoints(UnitOnBoard unit, int x, int y)
     return availablePoints - usingActionPoints;
 }
 
-bool AttackBase(Player *enemyPlayer, UnitOnBoard playerUnit)
+bool AttackBase(Player *enemyPlayer, UnitOnBoard& playerUnit)
 {
     // Check, if the base is on range
     if (rangeCalculate(playerUnit.getAttackRange(), playerUnit.getXCord(), playerUnit.getYCord(),
@@ -105,9 +105,10 @@ bool AttackAction(Player *actualPlayer, Player *enemyPlayer, std::vector<std::st
             // Then check, if unit was Attacking
             if (playerUnit->getAttack())
             {
-                throw std::string("Your unit already attacked.");
+                std::cout << "Your unit already attacked\n";
+                return false;
             }
-            if (stoi(words[2]) == enemyPlayer->getBaseData()->getIndex())
+            if ((stoi(words[2]) == actualPlayer->getBaseData()->getXCord() && stoi(words[3]) == actualPlayer->getBaseData()->getYCord()) || (stoi(words[2]) == enemyPlayer->getBaseData()->getXCord() && stoi(words[3]) == enemyPlayer->getBaseData()->getYCord()))
             {
                 // Attack on base
                 return AttackBase(enemyPlayer, *playerUnit);

@@ -33,9 +33,12 @@ class Base: private ABase
             Base::timeToCreateUnit = _timeToCreateUnit; 
         }
 
+        Base(const Base& temp_obj) = delete;
+        Base& operator=(const Base& temp_obj) = delete;
+
         ~Base() override {}
 
-        int getHp() override
+        int& getHp() override
         {
             return Base::hp;
         }
@@ -44,31 +47,31 @@ class Base: private ABase
         {
             Base::hp = _hp;
         }
-        int getSpeed() override{
+        int& getSpeed() override{
             return Base::speed;
         }
 
-        int getIndex()
+        int& getIndex()
         {
             return Base::index;
         }
 
-        char getBaseLetter()
+        char& getBaseLetter()
         {
             return Base::baseLetter;
         }
 
-        int getXCord() {return Base::xCord;}
+        int& getXCord() {return Base::xCord;}
 
-        int getYCord() {return Base::yCord;}
+        int& getYCord() {return Base::yCord;}
 
-        bool isBuilding() {return Base::isbuilding;}
+        bool& isBuilding() {return Base::isbuilding;}
 
-        void Building(bool _isbuilding) {Base::isbuilding = _isbuilding;}
+        void Building(bool& _isbuilding) {Base::isbuilding = _isbuilding;}
 
-        char getUnitType() {return Base::unitType;}
+        char& getUnitType() {return Base::unitType;}
 
-        int getTimeToCreate() {return Base::timeToCreateUnit;}
+        int& getTimeToCreate() {return Base::timeToCreateUnit;}
 
         void setTimeToCreateUnit(int _timeToCreateUnit){Base::timeToCreateUnit = _timeToCreateUnit;}
 
@@ -83,7 +86,7 @@ class Base: private ABase
             }
         }
 
-        char getOwner()
+        char& getOwner()
         {
             return Base::owner;
         }

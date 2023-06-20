@@ -149,7 +149,7 @@ void checkBuild()
             break;
         }
         default:
-            break;
+            return;
         }
     unitIndex += 1;
     //resets building state on base
@@ -182,9 +182,7 @@ void ResetAttacksStateFromPlayer()
     {
         for(UnitOnBoard &it : players[playerTurn]->getUnitList())
         {
-            UnitOnBoard u(it.getUnitType(), it.getUnitId(), it.getXCord(), it.getYCord(), it.getHp(), it.getSpeed(), it.getAttackRange(), it.getOwner());
-            players[playerTurn]->deleteUnit(it);
-            players[playerTurn]->addUnit(u);
+            it.resetAction();
         }
     }
 }
@@ -220,9 +218,9 @@ void ReadOrderToCommand()
                 listwords.clear();
             }
         }
-        catch(std::string error)
+        catch(std::string errorMessage)
         {
-            std::cout << error << std::endl;
+            std::cout << errorMessage << std::endl;
         }
     }
 }
@@ -420,13 +418,13 @@ void GameMenu()
         GetGoldFromWorkers();
 
         saveStatsToFile();
-
+        
         std::ofstream myFile(orderFileName);
         myFile.close(); 
-        
+
         std::cout << "Round: " << playerTurns[player1] + playerTurns[player2] << std::endl;
         std::cout << "Player: " << playerTurn + 1 << std::endl;
-        std::cout << "Write your commands on file " << orderFileName << ". You have " << timeOut << " seconds." << std::endl;
+        std::cout << "Write your command on file " << orderFileName << ". You have " << timeOut << " seconds." << std::endl;
 
         std::chrono::seconds duration(timeOut);
         std::this_thread::sleep_for(duration);

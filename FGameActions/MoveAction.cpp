@@ -63,34 +63,15 @@ bool MoveAction(Player* actualPlayer, Player* enemyPlayer, std::vector<std::stri
             {
                 throw std::string("Enemy on this coordination exists");
             }
-            break;
-        }
-        actualIndex += 1;
-    }
 
-    //For the problem with overriding memory of enemyPlayer Pointer,
-    //I need to create another while function to update an unit
-    
-    actualIndex = 0;
-    it = actualPlayer->getUnitList().begin();
-    while (it != actualPlayer->getUnitList().end())
-    {
-        if(actualIndex >= max)
-        {
-            return false;
-        }
-        if (it->getUnitId() == stoi(words[0]))
-        {
             //Decreases action points from move and set new Coorinates to unit.
-            UnitOnBoard updatedUnit(it->getUnitType(), it->getUnitId(), stoi(words[2]), stoi(words[3]), it->getHp(), it->getSpeed(), it->getAttackRange(), it->getOwner());
-            updatedUnit.setActionPoints(changeActionPoints(*it, stoi(words[2]), stoi(words[3])));
-            actualPlayer->deleteUnit(*it);
-            actualPlayer->addUnit(updatedUnit);
+            it->setActionPoints(changeActionPoints(*it, stoi(words[2]), stoi(words[3])));
+            it->setXCord(stoi(words[2]));
+            it->setYCord(stoi(words[3]));
             return true;
         }
         actualIndex += 1;
     }
-
     throw std::string("List of units are empty");
     return false;
 }

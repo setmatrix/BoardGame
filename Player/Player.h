@@ -1,5 +1,6 @@
 #include "../FData/FBaseData/Base.h"
 #include "../FUnitOnBoard/UnitOnBoard.h"
+#include <list>
 #include <memory>
 
 class Player
@@ -20,16 +21,17 @@ class Player
         {
             base.reset(new Base(_index, _baseLetter, _xCord, _yCord));
         }
-        
-        int getGold() {return Player::gold;}
 
+        Player(const Player& temp_obj) = delete;
+        Player& operator=(const Player& temp_obj) = delete;
+
+        int& getGold() {return Player::gold;}
         void setGold(int _gold) {Player::gold = _gold;}
-
         ~Player(){
             units.clear();
         }
 
-        std::list<UnitOnBoard> getUnitList()
+        std::list<UnitOnBoard> &getUnitList()
         {
             return Player::units;
         }
@@ -37,7 +39,7 @@ class Player
         {
             Player::units.push_back(_unit);
         }
-        std::shared_ptr<Base> getBaseData()
+        std::shared_ptr<Base> &getBaseData()
         {
             return Player::base;
         }
@@ -60,10 +62,5 @@ class Player
         void AddMoneyFromWorker()
         {
             Player::gold += Player::goldFromWorker;
-        }
-
-        void BaseReset(Base _base)
-        {
-            base.reset(new Base(_base));
         }
 };
