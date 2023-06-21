@@ -424,7 +424,7 @@ void GameMenu()
 
         std::cout << "Round: " << playerTurns[player1] + playerTurns[player2] << std::endl;
         std::cout << "Player: " << playerTurn + 1 << std::endl;
-        std::cout << "Write your command on file " << orderFileName << ". You have " << timeOut << " seconds." << std::endl;
+        std::cout << "Write your commands on file " << orderFileName << ". You have " << timeOut << " seconds." << std::endl;
 
         std::chrono::seconds duration(timeOut);
         std::this_thread::sleep_for(duration);

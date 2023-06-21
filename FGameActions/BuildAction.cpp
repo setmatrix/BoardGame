@@ -76,13 +76,22 @@ bool BuildAction(Player* actualPlayer, std::vector<std::string> words)
             }
             default:
             {
-                std::cout << "Unit doesn't exist" << std::endl;
                 delete array;
-                return false;
+                throw std::string("Unit doesn't exist.");
             }
         }
         delete array;
         return false;
     }
-    return false;
+    else {
+        if (actualPlayer->getBaseData()->getIndex() != stoi(words[0]))
+        {
+            throw std::string("Wrong base ID.");
+        }
+        if (actualPlayer->getBaseData()->isBuilding())
+        {
+            throw std::string("Your base is building at the moment!");
+        }
+    }
+    throw std::string("Wrong base ID or is building at the moment!");
 }

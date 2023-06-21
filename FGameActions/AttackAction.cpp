@@ -105,10 +105,9 @@ bool AttackAction(Player *actualPlayer, Player *enemyPlayer, std::vector<std::st
             // Then check, if unit was Attacking
             if (playerUnit->getAttack())
             {
-                std::cout << "Your unit already attacked\n";
-                return false;
+                throw std::string("Your unit already attacked.");
             }
-            if ((stoi(words[2]) == actualPlayer->getBaseData()->getXCord() && stoi(words[3]) == actualPlayer->getBaseData()->getYCord()) || (stoi(words[2]) == enemyPlayer->getBaseData()->getXCord() && stoi(words[3]) == enemyPlayer->getBaseData()->getYCord()))
+            if (stoi(words[2]) == enemyPlayer->getBaseData()->getIndex())
             {
                 // Attack on base
                 return AttackBase(enemyPlayer, *playerUnit);

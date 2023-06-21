@@ -147,7 +147,7 @@ bool prepareMapFromFile(const char* mapName)
     }
 }
 
-//Open and take data from file
+//Create Order File
 void createOrderFile(const char* orderName)
 {
     std::ofstream myFile(orderName);
